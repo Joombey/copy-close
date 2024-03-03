@@ -1,7 +1,7 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.android.lib)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -34,30 +34,17 @@ android {
 }
 
 dependencies {
-    //vm
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-
-    //database room
-    val room_version = "2.5.2"
-
-    implementation("androidx.room:room-runtime:$room_version")
-    annotationProcessor("androidx.room:room-compiler:$room_version")
-
-    // optional - Kotlin Extensions and Coroutines support for Room
-    implementation("androidx.room:room-ktx:$room_version")
-
-    // optional - Paging 3 Integration
-    implementation("androidx.room:room-paging:$room_version")
-    kapt("androidx.room:room-compiler:$room_version")
-
-    implementation("androidx.core:core-ktx:1.12.0")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-
-    //dagger
-    val daggerVersion = "2.50"
-    implementation("com.google.dagger:dagger-android:$daggerVersion")
-    kapt("com.google.dagger:dagger-compiler:$daggerVersion")
-    kapt("com.google.dagger:dagger-android-processor:$daggerVersion")
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.paging)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.core.ktx)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.dagger.android)
+    kapt(libs.dagger.compiler)
+    kapt(libs.dagger.android.processor)
 }

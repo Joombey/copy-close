@@ -1,8 +1,8 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
-    id("kotlinx-serialization")
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.android.lib)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.plugin.serialization)
 }
 
 android {
@@ -36,33 +36,25 @@ android {
 
 dependencies {
     implementation(project(":utils"))
-
-    //coroutines
-    val coroutineVersion = "1.7.3"
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutineVersion")
-    //ktor
-    val ktorVersion = "2.3.6"
-    val serializationVersion = "1.6.1"
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-client-serialization:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.serialization)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.logging)
     //ktor-engine
-    implementation("io.ktor:ktor-client-android:$ktorVersion")
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.okhttp)
 
     //serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+    implementation(libs.kotlinx.serialization.json)
 
-    //dagger
-    val daggerVersion = "2.50"
-    implementation("com.google.dagger:dagger-android:$daggerVersion")
-    kapt("com.google.dagger:dagger-compiler:$daggerVersion")
-    kapt("com.google.dagger:dagger-android-processor:$daggerVersion")
+    implementation(libs.dagger.android)
+    kapt(libs.dagger.compiler)
+    kapt(libs.dagger.android.processor)
 
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

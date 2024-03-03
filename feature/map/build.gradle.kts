@@ -1,7 +1,7 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
+    alias(libs.plugins.android.lib)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -40,61 +40,28 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-    implementation("androidx.activity:activity-compose:1.8.2")
-    implementation(platform("androidx.compose:compose-bom:2023.08.00"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
     implementation(project(":utils"))
     implementation(project(":network"))
     implementation(project(":core"))
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.kotlinx.coroutines.android)
 
-    //material3
-    implementation("androidx.compose.material3:material3")
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 
-    //icons
-    implementation("androidx.compose.material:material")
-    implementation("androidx.compose.material:material-icons-extended")
-
-    //nav
-    val navVersion = "2.7.3"
-    implementation("androidx.navigation:navigation-compose:$navVersion")
-
-    //viewModel
-    val vmVersion = "2.6.2"
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$vmVersion")
-
-    //coroutines
-    val coroutineVersion = "1.7.3"
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutineVersion")
-
-    //collectAsStateWithLifecycle
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
-
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-
-    //dagger
-    val daggerVersion = "2.50"
-    implementation("com.google.dagger:dagger-android:$daggerVersion")
-    kapt("com.google.dagger:dagger-compiler:$daggerVersion")
-    kapt("com.google.dagger:dagger-android-processor:$daggerVersion")
-
-    //osmdroid
-    val osmVersion = "6.1.18"
-    implementation("org.osmdroid:osmdroid-android:$osmVersion")
+    implementation(libs.dagger.android)
+    kapt(libs.dagger.compiler)
+    kapt(libs.dagger.android.processor)
+    implementation(libs.osm)
 }
