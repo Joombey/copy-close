@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.toSize
 import dev.farukh.auth.R
+import dev.farukh.core.di.ui.map.Map
 import dev.farukh.utils.ui.UiDefaults
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -60,7 +61,12 @@ fun SignUpScreen(
             )
             OutlinedTextField(value = password, onValueChange = { password = it })
             OutlinedTextField(value = name, onValueChange = { name = it })
-            OutlinedTextField(value = address, onValueChange = { address = it })
+//            AddressSearch(
+//                address = address,
+//                onAddressChange = {
+//                    address = it
+//                }
+//            )
         }
         OutlinedButton(
             onClick = onSignUp,
