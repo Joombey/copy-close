@@ -76,6 +76,7 @@ dependencies {
 
     //dagger
     implementation(libs.dagger.android)
+    implementation(libs.osm)
     kapt(libs.dagger.compiler)
     kapt(libs.dagger.android.processor)
 }

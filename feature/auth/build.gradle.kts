@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.kotlinx.collection.immutable)
+    implementation(libs.osm)
 
     implementation(libs.dagger.android)
     kapt(libs.dagger.compiler)
