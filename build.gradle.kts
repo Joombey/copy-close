@@ -6,4 +6,5 @@ plugins {
     alias(libs.plugins.kotlin.plugin.serialization) apply false
     alias(libs.plugins.kotlin.kapt) apply false
     alias(libs.plugins.android.lib) apply false
+    alias(libs.plugins.sql.delight) apply false
 }

@@ -11,12 +11,9 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
     }
+//    enableFeaturePreview("GRADLE_METADATA")
 }
 
 rootProject.name = "copy-close"
 include(":app")
-include(":feature:map")
-include(":utils")
-include(":core")
-include(":feature:auth")
 include(":network")

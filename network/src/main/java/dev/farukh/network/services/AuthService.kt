@@ -57,12 +57,12 @@ class AuthServiceImpl(
                 contentType(ContentType.Application.Json)
                 setBody(
                     SignUpModel(
-                        login= login,
-                        password= password,
-                        name= name,
-                        address= address,
-                        lat= lat,
-                        lon= lon
+                        login = login,
+                        password = password,
+                        name = name ,
+                        address = address,
+                        lat = lat,
+                        lon = lon
                     )
                 )
             }.status == HttpStatusCode.OK

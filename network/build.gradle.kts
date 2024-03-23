@@ -1,3 +1,7 @@
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.android.lib)
@@ -11,9 +15,12 @@ android {
 
     defaultConfig {
         minSdk = 24
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+        buildConfigField("String", "DaDataURL", readLocalProperties("daDataAPI"))
+        buildConfigField("String", "DaDataSecret", readLocalProperties("daDataSecret"))
+        buildConfigField("String", "DaDataApiKey", readLocalProperties("daDataApiKey"))
+        buildConfigField("String", "CopyCloseURL", readLocalProperties("copyCloseUrl"))
     }
 
     buildTypes {
@@ -32,10 +39,13 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 dependencies {
-    implementation(project(":utils"))
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.content.negotiation)
@@ -50,11 +60,20 @@ dependencies {
     //serialization
     implementation(libs.kotlinx.serialization.json)
 
-    implementation(libs.dagger.android)
-    kapt(libs.dagger.compiler)
-    kapt(libs.dagger.android.processor)
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+fun readLocalProperties(key: String): String {
+    val properties = Properties()
+    val localProperties = File(rootDir, "local.properties")
+    if (localProperties.isFile) {
+        FileInputStream(localProperties).use { fis ->
+            properties.load(fis)
+        }
+    } else {
+        throw FileNotFoundException("local.properties file not found")
+    }
+    return properties.getProperty(key) ?: ""
 }

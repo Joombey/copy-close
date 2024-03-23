@@ -8,8 +8,12 @@ import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.request
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
+import io.ktor.http.contentType
+import io.ktor.http.path
 import kotlinx.serialization.json.Json
 
 interface DaDataService {
@@ -20,9 +24,6 @@ internal class DaDataServiceImpl(
     private val client: HttpClient,
     private val json: Json
 ) : DaDataService {
-    private val secretKey = ""
-    private val apiKey = ""
-
     override suspend fun getAddressSuggestion(
         query: String
     ) = client.postDaData(listOf(query)) {
@@ -32,10 +33,12 @@ internal class DaDataServiceImpl(
 
     private suspend inline fun <R> commonRequest(
         method: HttpMethod,
-        onResponse: HttpResponse.() -> R
+        onResponse: HttpResponse.() -> R,
+        config: HttpRequestBuilder.() -> Unit,
     ): RequestResult<R> {
         val builder = HttpRequestBuilder().apply {
             this.method = method
+            config()
         }
 
         return try {
@@ -52,6 +55,11 @@ internal class DaDataServiceImpl(
         onResponse: HttpResponse.() -> R
     ) = commonRequest(
         method = HttpMethod.Post,
-        onResponse = onResponse
+        onResponse = onResponse,
+        config = {
+            url { path("api/v1/clean/address") }
+            contentType(ContentType.Application.Json)
+            setBody(body)
+        }
     )
 }

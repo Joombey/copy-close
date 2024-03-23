@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.android.app)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.sql.delight)
 }
 
 android {
@@ -39,9 +40,10 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.6"
     }
     packaging {
         resources {
@@ -51,8 +53,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":feature:auth"))
-    implementation(project(":feature:map"))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -61,6 +61,11 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.kotlinx.collection.immutable)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -73,10 +78,20 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.runtime.compose)
-
-    //dagger
-    implementation(libs.dagger.android)
+    implementation(libs.sql.delight.coroutines.extensions)
+    implementation(libs.sql.delight.android.driver)
     implementation(libs.osm)
-    kapt(libs.dagger.compiler)
-    kapt(libs.dagger.android.processor)
+    implementation(libs.kodein.di)
+    implementation(libs.kodein.di.jvm)
+    implementation(libs.kodein.di.framework.compose)
+}
+
+
+sqldelight {
+    databases {
+        create("CopyCloseDB") {
+            srcDirs("src/main/java/sqldblight")
+            packageName = "db.farukh"
+        }
+    }
 }

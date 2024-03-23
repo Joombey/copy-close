@@ -1,25 +1,26 @@
 [versions]
-composeBomVersion = "2024.02.01"
+androidDriverVersion = "2.0.1"
+composeBomVersion = "2024.03.00"
 activityComposeVersion = "1.8.2"
 coreKtxVersion = "1.12.0"
-coroutineVersion = "1.7.3"
-daggerVersion = "2.50"
+coroutinesExtensionsVersion = "2.0.1"
+coroutineVersion = "1.8.0"
 espressoCoreVersion = "3.5.1"
 junit = "1.1.5"
 junitVersion = "4.13.2"
+kodeinDiVersion = "7.20.0"
 ktorVersion = "2.3.6"
 lifecycleRuntimeComposeVersion = "2.7.0"
 lifecycleRuntimeKtxVersion = "2.7.0"
 navVersion = "2.7.7"
-roomCompilerVersion = "2.6.1"
-roomRuntimeVersion = "2.6.1"
-serializationVersion = "1.6.1"
+serializationVersion = "1.6.3"
 appCompatKtxVersion = "1.12.0"
 immutableCollectionVersion = "0.3.7"
 osmVersion = "6.1.18"
 kotlin = "1.9.0"
-androidApplicationVersion = "8.2.2"
-androidLibraryVersion = "8.2.2"
+androidApplicationVersion = "8.3.1"
+androidLibraryVersion = "8.3.1"
+sqlDelightVersion = "2.0.1"
 
 [libraries]
 androidx-appcompat = { module = "androidx.core:core-ktx", version.ref = "appCompatKtxVersion" }
@@ -41,21 +42,18 @@ androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-ru
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeComposeVersion" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navVersion" }
-androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompilerVersion" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCompilerVersion" }
-androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "roomCompilerVersion" }
-androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntimeVersion" }
 
-dagger-android = { module = "com.google.dagger:dagger-android", version.ref = "daggerVersion" }
-dagger-android-processor = { module = "com.google.dagger:dagger-android-processor", version.ref = "daggerVersion" }
-dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "daggerVersion" }
-
+kodein-di-framework-compose = { module = "org.kodein.di:kodein-di-framework-compose", version.ref = "kodeinDiVersion" }
+kodein-di-jvm = { module = "org.kodein.di:kodein-di-jvm", version.ref = "kodeinDiVersion" }
+sql-delight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "androidDriverVersion" }
+sql-delight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "coroutinesExtensionsVersion" }
 junit = { module = "junit:junit", version.ref = "junitVersion" }
 
+kodein-di = { module = "org.kodein.di:kodein-di", version.ref = "kodeinDiVersion" }
 kotlinx-collection-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "immutableCollectionVersion" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutineVersion" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serializationVersion" }
-
+#network
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorVersion" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorVersion" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorVersion" }
@@ -74,4 +72,5 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-kotlinx-serialization = { id = "org.jetbrains.kotlinx.serialization", version.ref = "kotlin" }
+sql-delight = { id = "app.cash.sqldelight", version.ref = "sqlDelightVersion" }
+#kotlinx-serialization = { id = "org.jetbrains.kotlinx.serialization", version.ref = "kotlin" }
