@@ -15,17 +15,10 @@ import kotlinx.serialization.json.Json
 
 interface AuthService {
     suspend fun signIn(login: String, password: String): RequestResult<Boolean>
-    suspend fun signUp(
-        login: String,
-        password: String,
-        name: String,
-        address: String,
-        lat: Double,
-        lon: Double,
-    ): RequestResult<Boolean>
+    suspend fun signUp(signUpModel: SignUpModel): RequestResult<Boolean>
 }
 
-class AuthServiceImpl(
+internal class AuthServiceImpl(
     private val json: Json,
     private val client: HttpClient
 ) : AuthService {
@@ -44,27 +37,11 @@ class AuthServiceImpl(
         }
     }
 
-    override suspend fun signUp(
-        login: String,
-        password: String,
-        name: String,
-        address: String,
-        lat: Double,
-        lon: Double
-    ): RequestResult<Boolean> {
+    override suspend fun signUp(signUpModel: SignUpModel): RequestResult<Boolean> {
         return try {
             val result = client.post {
                 contentType(ContentType.Application.Json)
-                setBody(
-                    SignUpModel(
-                        login = login,
-                        password = password,
-                        name = name ,
-                        address = address,
-                        lat = lat,
-                        lon = lon
-                    )
-                )
+                setBody(signUpModel)
             }.status == HttpStatusCode.OK
             RequestResult.Success(result)
         } catch (e: ClientRequestException) {

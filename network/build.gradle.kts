@@ -63,6 +63,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation(libs.kodein.di)
+    implementation(libs.kodein.di.jvm)
 }
 
 fun readLocalProperties(key: String): String {

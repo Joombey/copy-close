@@ -2,32 +2,31 @@ package dev.farukh.copyclose
 
 import android.app.Application
 import android.content.Context
-import app.cash.sqldelight.driver.android.AndroidSqliteDriver
-import db.farukh.CopyCloseDB
-import dev.farukh.copyclose.db.Database
+import dev.farukh.copyclose.features.auth.authDI
+import dev.farukh.copyclose.features.register.registerDI
+import dev.farukh.network.di.networkDI
 import org.kodein.di.DI
 import org.kodein.di.DIAware
-import org.kodein.di.bind
+import org.kodein.di.bindInstance
 import org.kodein.di.bindProvider
-import org.kodein.di.bindSingleton
-import org.kodein.di.instance
 import org.osmdroid.config.Configuration
 
 class CopyCloseApp : Application(), DIAware {
     override fun onCreate() {
         loadMap()
+        extendDI()
         super.onCreate()
     }
 
     override val di = DI {
-        bindProvider {
-            val androidDriver = AndroidSqliteDriver(CopyCloseDB.Schema, this@CopyCloseApp, "test.db")
-            Database(CopyCloseDB(androidDriver))
-        }
+        import(networkDI)
+        bindProvider { applicationContext }
+        bindProvider { MainViewModel() }
+    }
 
-        bindProvider {
-            MainViewModel(instance<Database>())
-        }
+    private fun extendDI() {
+//        registerDI(di)
+//        authDI(di)
     }
 
     private fun loadMap() {

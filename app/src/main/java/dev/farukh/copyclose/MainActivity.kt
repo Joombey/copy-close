@@ -3,26 +3,25 @@ package dev.farukh.copyclose
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import dev.farukh.copyclose.features.auth.ui.compose.AuthScreen
+import dev.farukh.copyclose.features.register.ui.compose.RegisterScreen
 import dev.farukh.copyclose.ui.theme.CopycloseTheme
+import dev.farukh.copyclose.utils.toast
 import org.kodein.di.compose.rememberViewModel
 import org.kodein.di.compose.withDI
 
@@ -31,26 +30,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             withDI(di = (application as CopyCloseApp).di) {
-                val viewModel: MainViewModel by rememberViewModel()
-                val list by viewModel.list.collectAsStateWithLifecycle(emptyList())
                 CopycloseTheme {
-                    Text(text = "3131321")
                     Scaffold(
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        Column(
-                            modifier = Modifier.padding(it),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            Button(onClick = {
-                                viewModel.newUser()
-                            }) {
-                                Text(text = "Create User")
-                            }
-                            for (en in list) {
-                                Text(en.name, Modifier.clickable { viewModel.delete(en.id) })
-                            }
-                        }
+                        App(
+                            padding = it,
+                            startScreen = Screen.AuthGraph
+                        )
                     }
                 }
             }
@@ -64,6 +51,12 @@ fun App(
     startScreen: Screen
 ) {
     val navController = rememberNavController()
+    val viewModel: MainViewModel by rememberViewModel()
+    LaunchedEffect(Unit) {
+        viewModel.currentScreen.collect {
+            navController.navigate(it.route)
+        }
+    }
     NavHost(
         navController = navController,
         startDestination = startScreen.route,
@@ -71,20 +64,59 @@ fun App(
             .padding(padding)
             .fillMaxSize()
     ) {
-        authGraph()
+        authGraph(
+            onLoginSuccess = {
+//                navController.navigate(Screen.AuthGraph.Auth.route)
+            },
+            onRegisterPress = viewModel::toRegister,
+            onRegisterSuccess = viewModel::toAuth,
+        )
     }
 }
 
-fun NavGraphBuilder.authGraph() {
+fun NavGraphBuilder.authGraph(
+    onLoginSuccess: () -> Unit,
+    onRegisterPress: () -> Unit,
+    onRegisterSuccess: () -> Unit,
+) {
     navigation(
-        startDestination = Screen.AuthGraph.SignUp.route,
+        startDestination = Screen.AuthGraph.Auth.route,
         route = Screen.AuthGraph.route
     ) {
         composable(
-            route = Screen.AuthGraph.SingIn.route,
-            arguments = Screen.AuthGraph.SingIn.args
+            route = Screen.AuthGraph.Auth.route,
+            arguments = Screen.AuthGraph.Auth.args
         ) {
-//            AuthScreen()
+            AuthScreen(
+                onLoginSuccess = onLoginSuccess,
+                onRegister = onRegisterPress,
+                modifier = Modifier.fillMaxSize()
+            )
         }
+
+        composable(
+            route = Screen.AuthGraph.Register.route,
+            arguments = Screen.AuthGraph.Register.args
+        ) {
+//            Text("")
+//            LocalContext.current.toast("Wow")
+            RegisterScreen(
+                onRegisterSuccess = onRegisterSuccess
+            )
+        }
+    }
+}
+
+fun NavController.navigateWithOptionsTo(route: String) {
+    navigate(route) {
+        launchSingleTop = true
+        restoreState = true
+    }
+}
+
+fun NavController.navigateWithStateLoss(route: String) {
+    navigate(route) {
+        launchSingleTop = true
+        restoreState = false
     }
 }

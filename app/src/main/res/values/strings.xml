@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">copy-close</string>
+    <string name="login">Войти</string>
+    <string name="register">Зарегистрироваться</string>
+    <string name="err_client">Ошибка отправки запроса, проверьте интернет соединение</string>
+    <string name="err_creds">Ошибка логина или пароля</string>
+    <string name="err_server">Ошибка в работе сервера, попробуйте позже</string>
 </resources>

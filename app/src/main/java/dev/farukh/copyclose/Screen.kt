@@ -1,7 +1,6 @@
 package dev.farukh.copyclose
 
 import androidx.navigation.NamedNavArgument
-import androidx.navigation.NavArgs
 
 sealed interface Screen {
     val route: String
@@ -10,12 +9,12 @@ sealed interface Screen {
     data object AuthGraph: Screen {
         override val route get() = "auth"
 
-        data object SingIn: Screen {
-            override val route: String = "${AuthGraph.route}/sing-in"
+        data object Auth: Screen {
+            override val route: String = "${AuthGraph.route}/login"
         }
 
-        data object SignUp: Screen {
-            override val route: String = "${AuthGraph.route}/sing-up"
+        data object Register: Screen {
+            override val route: String = "${AuthGraph.route}/register"
         }
     }
 }

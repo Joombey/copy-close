@@ -1,24 +1,19 @@
 package dev.farukh.copyclose
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import db.farukh.SampleEntity
-import dev.farukh.copyclose.db.Database
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
-class MainViewModel(private val db: Database) : ViewModel() {
-    val list: Flow<List<SampleEntity>> get() = db.getAll()
+class MainViewModel : ViewModel() {
+    private val _currentScreen = MutableStateFlow<Screen>(Screen.AuthGraph.Auth)
+    val currentScreen = _currentScreen.asStateFlow()
 
-    fun newUser() {
-        viewModelScope.launch(Dispatchers.IO) {
-            db.newUser("abc")
-        }
+    fun toAuth() {
+        _currentScreen.update { Screen.AuthGraph.Auth }
     }
-    fun delete(id: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
-            db.delete(id)
-        }
+
+    fun toRegister() {
+        _currentScreen.update { Screen.AuthGraph.Register }
     }
 }

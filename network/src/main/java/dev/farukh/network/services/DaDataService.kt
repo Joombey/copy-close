@@ -10,6 +10,7 @@ import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
@@ -26,7 +27,7 @@ internal class DaDataServiceImpl(
 ) : DaDataService {
     override suspend fun getAddressSuggestion(
         query: String
-    ) = client.postDaData(listOf(query)) {
+    ) = client.postDaData(listOf("Булатниковская 3 2 23")) {
         body<List<AddressSuggestion>>()
     }
 

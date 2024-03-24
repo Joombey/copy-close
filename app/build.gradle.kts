@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.kotlinx.collection.immutable)
+    implementation(project(":network"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
