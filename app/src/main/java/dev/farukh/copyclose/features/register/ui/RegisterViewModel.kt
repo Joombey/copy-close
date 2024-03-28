@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.farukh.copyclose.core.model.Address
@@ -40,16 +39,16 @@ class RegisterViewModel(
             .filter { it != "" }
             .onEach { query ->
                 when (val result = registerRepository.query(query)) {
-                    RequestResult.ClientError -> _uiState.mapError = MapErr.NotSuchAddress
-                    RequestResult.ServerInternalError -> _uiState.mapError = MapErr.NotSuchAddress
+                    RequestResult.ClientError -> _uiState._mapUIState.mapError = MapErr.NotSuchAddress
+                    RequestResult.ServerInternalError -> _uiState._mapUIState.mapError = MapErr.NotSuchAddress
                     is RequestResult.Success -> {
-                        _uiState._addressList.clear()
-                        _uiState._addressList.addAll(result.data)
+                        _uiState._mapUIState._addressList.clear()
+                        _uiState._mapUIState._addressList.addAll(result.data)
 
                         if (result.data.isEmpty()) {
-                            _uiState.mapError = MapErr.NotSuchAddress
-                        } else if (_uiState.mapError != null) {
-                            _uiState.mapError = null
+                            _uiState._mapUIState.mapError = MapErr.NotSuchAddress
+                        } else if (_uiState._mapUIState.mapError != null) {
+                            _uiState._mapUIState.mapError = null
                         }
                     }
                 }
@@ -75,7 +74,7 @@ class RegisterViewModel(
     }
 
     fun setQuery(value: String) {
-        _uiState.query = value
+        _uiState._mapUIState.query = value
         query.tryEmit(value)
     }
 
@@ -85,9 +84,9 @@ class RegisterViewModel(
                 name = uiState.name,
                 login = uiState.login,
                 password = uiState.password,
-                lat = uiState.chosenAddress?.lat ?: return@launch,
-                lon = uiState.chosenAddress?.lon ?: return@launch,
-                addressName = uiState.chosenAddress?.addressName ?: return@launch
+                lat = uiState.mapUIState.chosenAddress?.lat ?: return@launch,
+                lon = uiState.mapUIState.chosenAddress?.lon ?: return@launch,
+                addressName = uiState.mapUIState.chosenAddress?.addressName ?: return@launch
             )
 
             when (result) {
@@ -105,7 +104,7 @@ class RegisterViewModel(
 
                     if (uiState.registered) {
                         _uiState.passwordConfirmErr = false
-                        _uiState.mapError = null
+                        _uiState._mapUIState.mapError = null
                         _uiState.networkErr = null
                     }
                 }
@@ -114,11 +113,14 @@ class RegisterViewModel(
     }
 
     fun chooseAddress(address: Address) {
-        _uiState.chosenAddress = address
+        _uiState._mapUIState.chosenAddress = address
     }
 }
 
 private class RegisterScreenUIStateMutable : RegisterScreenUIState {
+    val _mapUIState = MapUIStateMutable()
+    override val mapUIState: MapUIState = _mapUIState
+
     override val name by mutableStateOf("")
     override var login by mutableStateOf("")
     override var password by mutableStateOf("")
@@ -129,13 +131,16 @@ private class RegisterScreenUIStateMutable : RegisterScreenUIState {
 
     override var registered by mutableStateOf(false)
 
-    override var mapError: MapErr? by mutableStateOf(null)
     override var networkErr: NetworkErr? by mutableStateOf(null)
+}
 
-    override var query by mutableStateOf("")
-    override var chosenAddress: Address? by mutableStateOf(null)
+private class MapUIStateMutable: MapUIState {
     val _addressList = mutableStateListOf<Address>()
+
+    override var query: String by mutableStateOf("")
     override val addressList: List<Address> = _addressList
+    override var chosenAddress: Address? by mutableStateOf(null)
+    override var mapError: MapErr? by mutableStateOf(null)
 }
 
 interface RegisterScreenUIState {
@@ -147,14 +152,18 @@ interface RegisterScreenUIState {
     val passwordConfirmErr: Boolean
     val userExistsErr: Boolean
 
+    val mapUIState: MapUIState
+
+    val registered: Boolean
+    val networkErr: NetworkErr?
+}
+
+@Stable
+interface MapUIState {
     val query: String
     val addressList: List<Address>
     val chosenAddress: Address?
-
-    val registered: Boolean
-
     val mapError: MapErr?
-    val networkErr: NetworkErr?
 }
 
 @Stable

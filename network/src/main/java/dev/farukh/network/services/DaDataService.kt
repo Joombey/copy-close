@@ -4,13 +4,13 @@ import dev.farukh.network.responses.AddressSuggestion
 import dev.farukh.network.utils.RequestResult
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
@@ -27,7 +27,7 @@ internal class DaDataServiceImpl(
 ) : DaDataService {
     override suspend fun getAddressSuggestion(
         query: String
-    ) = client.postDaData(listOf("Булатниковская 3 2 23")) {
+    ) = postDaData(listOf("Булатниковская 3 2 23")) {
         body<List<AddressSuggestion>>()
     }
 
@@ -48,19 +48,22 @@ internal class DaDataServiceImpl(
             return RequestResult.ClientError
         } catch (e: ServerResponseException) {
             return RequestResult.ServerInternalError
+        } catch (e: SocketTimeoutException) {
+            return RequestResult.ClientError
+        } catch (e: Exception) {
+            return RequestResult.ClientError
         }
     }
 
-    private suspend inline fun <reified T, R> HttpClient.postDaData(
+    private suspend inline fun <reified T, R> postDaData(
         body: T,
         onResponse: HttpResponse.() -> R
     ) = commonRequest(
         method = HttpMethod.Post,
-        onResponse = onResponse,
-        config = {
+        onResponse = onResponse
+        ) {
             url { path("api/v1/clean/address") }
             contentType(ContentType.Application.Json)
             setBody(body)
         }
-    )
 }
