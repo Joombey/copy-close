@@ -1,6 +1,5 @@
 package dev.farukh.copyclose.features.register
 
-import dev.farukh.copyclose.CopyCloseApp
 import dev.farukh.copyclose.features.register.data.RegisterRepository
 import dev.farukh.copyclose.features.register.ui.RegisterViewModel
 import org.kodein.di.DI
@@ -13,7 +12,8 @@ fun registerDI(parentDI: DI) = DI {
     bindProvider {
         RegisterRepository(
             instance(),
-            instance()
+            instance(),
+            instance(),
         )
     }
 

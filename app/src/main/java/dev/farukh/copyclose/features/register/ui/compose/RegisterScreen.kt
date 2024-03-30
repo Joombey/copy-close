@@ -3,14 +3,12 @@ package dev.farukh.copyclose.features.register.ui.compose
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
 import dev.farukh.copyclose.features.register.registerDI
 import dev.farukh.copyclose.features.register.ui.RegisterViewModel
 import dev.farukh.copyclose.utils.UiUtils
@@ -59,6 +57,7 @@ fun RegisterScreen(
                 uiState = viewModel.uiState.mapUIState,
                 onAddressClick = viewModel::chooseAddress,
                 onQueryChange = viewModel::setQuery,
+                onQueryClick = viewModel::query,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)

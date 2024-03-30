@@ -17,9 +17,15 @@ android {
         minSdk = 24
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
         buildConfigField("String", "DaDataURL", readLocalProperties("daDataAPI"))
-        buildConfigField("String", "DaDataSecret", readLocalProperties("daDataSecret"))
-        buildConfigField("String", "DaDataApiKey", readLocalProperties("daDataApiKey"))
+
+        buildConfigField("String", "GeoSuggesterApiKey", readLocalProperties("yandexGeoSuggesterApiKey"))
+        buildConfigField("String", "GeoSuggesterUrl", readLocalProperties("yandexGeoSuggesterUrl"))
+
+        buildConfigField("String", "GeoCoderApiKey", readLocalProperties("yandexGeoCoderApiKey"))
+        buildConfigField("String", "GeoCoderUrl", readLocalProperties("yandexGeoCoderUrl"))
+
         buildConfigField("String", "CopyCloseURL", readLocalProperties("copyCloseUrl"))
     }
 

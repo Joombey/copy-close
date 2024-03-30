@@ -1,5 +1,6 @@
 package dev.farukh.copyclose.features.register.ui
 
+import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -11,50 +12,31 @@ import dev.farukh.copyclose.core.model.Address
 import dev.farukh.copyclose.features.register.data.RegisterRepository
 import dev.farukh.network.utils.RequestResult
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-@OptIn(FlowPreview::class)
 class RegisterViewModel(
     private val registerRepository: RegisterRepository
 ) : ViewModel() {
     private val _uiState = RegisterScreenUIStateMutable()
     val uiState: RegisterScreenUIState = _uiState
 
-    private val query = MutableSharedFlow<String>(
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_LATEST
-    ).also { it.tryEmit("") }
+    fun query() {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val result = registerRepository.query(uiState.mapUIState.query)) {
+                RequestResult.ClientError -> _uiState._mapUIState.mapError = MapErr.NotSuchAddress
+                RequestResult.ServerInternalError -> _uiState._mapUIState.mapError = MapErr.NotSuchAddress
+                is RequestResult.Success -> {
+                    _uiState._mapUIState._addressList.clear()
+                    _uiState._mapUIState._addressList.addAll(result.data)
 
-    init {
-        query
-            .debounce(300L)
-            .filter { it != "" }
-            .onEach { query ->
-                when (val result = registerRepository.query(query)) {
-                    RequestResult.ClientError -> _uiState._mapUIState.mapError = MapErr.NotSuchAddress
-                    RequestResult.ServerInternalError -> _uiState._mapUIState.mapError = MapErr.NotSuchAddress
-                    is RequestResult.Success -> {
-                        _uiState._mapUIState._addressList.clear()
-                        _uiState._mapUIState._addressList.addAll(result.data)
-
-                        if (result.data.isEmpty()) {
-                            _uiState._mapUIState.mapError = MapErr.NotSuchAddress
-                        } else if (_uiState._mapUIState.mapError != null) {
-                            _uiState._mapUIState.mapError = null
-                        }
+                    if (result.data.isEmpty()) {
+                        _uiState._mapUIState.mapError = MapErr.NotSuchAddress
+                    } else if (_uiState._mapUIState.mapError != null) {
+                        _uiState._mapUIState.mapError = null
                     }
                 }
             }
-            .flowOn(Dispatchers.IO)
-            .launchIn(viewModelScope)
+        }
     }
 
     fun setLogin(value: String) {
@@ -75,7 +57,6 @@ class RegisterViewModel(
 
     fun setQuery(value: String) {
         _uiState._mapUIState.query = value
-        query.tryEmit(value)
     }
 
     fun register() {

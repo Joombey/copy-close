@@ -7,12 +7,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.OutlinedTextField
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,14 +52,13 @@ fun MapChooserView(
     uiState: MapUIState,
     onAddressClick: (Address) -> Unit,
     onQueryChange: (String) -> Unit,
+    onQueryClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
     val latestOnAddressClick by rememberUpdatedState(onAddressClick)
     var zoomInTrigger by remember { mutableStateOf(true) }
     var zoomOutTrigger by remember { mutableStateOf(true) }
-    Log.i("map", "sate = ${(uiState.addressList as? SnapshotStateList)?.toList() == null}")
-    Log.i("map", "sate = ${(uiState.addressList as? SnapshotStateList)?.toList()?.toString()}")
     Box(modifier) {
         AndroidView(
             factory = { context ->
@@ -72,10 +72,8 @@ fun MapChooserView(
                     snapshotFlow {
                         (uiState.addressList as? SnapshotStateList)?.toList() ?: uiState.addressList
                     }
-                        .onEach {
-                            Log.i("map", "$it")
-                        }
                         .onEach { setAddresses(it, latestOnAddressClick) }
+                        .onEach { Log.i("map", it.size.toString()) }
                         .launchIn(scope)
 
                     snapshotFlow { zoomOutTrigger }
@@ -101,6 +99,7 @@ fun MapChooserView(
             addressList = uiState.addressList.toImmutableList(),
             onAddressClick = onAddressClick,
             onQueryChange = onQueryChange,
+            onQueryClick = onQueryClick,
             modifier = Modifier
                 .background(Color.Transparent)
                 .align(Alignment.BottomCenter)
@@ -139,6 +138,7 @@ fun QueryField(
     addressList: ImmutableList<Address>,
     onAddressClick: (Address) -> Unit,
     onQueryChange: (String) -> Unit,
+    onQueryClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var queryFieldFocused by remember { mutableStateOf(false) }
@@ -147,7 +147,7 @@ fun QueryField(
         modifier = modifier,
         verticalArrangement = Arrangement.Bottom,
     ) {
-        AnimatedVisibility(visible = addressList.isEmpty()) {
+        AnimatedVisibility(visible = addressList.isNotEmpty()) {
             MapAddressListView(
                 addressList = addressList,
                 onAddress = onAddressClick
@@ -160,7 +160,14 @@ fun QueryField(
                 .focusRequester(focusRequester)
                 .onFocusChanged { focusEvent ->
                     queryFieldFocused = focusEvent.isFocused
+                },
+            trailingIcon = {
+                IconButton(
+                    onClick = onQueryClick,
+                ) {
+                    Icon(imageVector = Icons.Filled.Search, contentDescription = null)
                 }
+            }
         )
     }
 }

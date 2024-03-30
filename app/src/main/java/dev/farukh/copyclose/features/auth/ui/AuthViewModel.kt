@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.farukh.network.services.AuthService
+import dev.farukh.network.services.copyClose.authService.AuthService
 import dev.farukh.network.utils.RequestResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
