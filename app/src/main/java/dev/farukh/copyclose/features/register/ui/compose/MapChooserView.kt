@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 import dev.farukh.copyclose.R
-import dev.farukh.copyclose.core.model.Address
+import dev.farukh.copyclose.core.data.model.Address
 import dev.farukh.copyclose.features.register.ui.QueryUIState
 import dev.farukh.copyclose.features.register.ui.map.AddressMarker
 import dev.farukh.copyclose.utils.UiUtils

@@ -7,6 +7,7 @@ import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.request
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 
 private suspend inline fun <R> HttpClient.commonRequest(
@@ -50,3 +51,5 @@ internal suspend inline fun <R> HttpClient.commonPut(
     onResponse: HttpResponse.() -> R,
     config: HttpRequestBuilder.() -> Unit,
 ): RequestResult<R> = commonRequest(method = HttpMethod.Put, onResponse = onResponse, config = config)
+
+internal val ContentType.mimeString get() = "$contentType/$contentSubtype"

@@ -9,23 +9,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.farukh.copyclose.core.model.Address
-import dev.farukh.copyclose.features.register.data.MediaContentRepository
-import dev.farukh.copyclose.features.register.data.RegisterRepository
+import dev.farukh.copyclose.core.data.dto.RegisterDTO
+import dev.farukh.copyclose.core.data.model.Address
+import dev.farukh.copyclose.core.data.repos.MediaRepository
+import dev.farukh.copyclose.core.domain.CreateUserUseCase
+import dev.farukh.copyclose.features.register.data.GeoRepository
 import dev.farukh.network.utils.RequestResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class RegisterViewModel(
-    private val registerRepository: RegisterRepository,
-    private val mediaContentRepository: MediaContentRepository,
+    private val geoRepository: GeoRepository,
+    private val mediaRepository: MediaRepository,
+    private val createUserUseCase: CreateUserUseCase,
 ) : ViewModel() {
     private val _uiState = RegisterScreenUIStateMutable()
     val uiState: RegisterScreenUIState = _uiState
 
     fun query() {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val result = registerRepository.query(uiState.queryUIState.query)) {
+            when (val result = geoRepository.query(uiState.queryUIState.query)) {
                 RequestResult.ClientError -> _uiState._queryUIState.queryError = QueryErr.NoSuchAddress
                 RequestResult.ServerInternalError -> _uiState._queryUIState.queryError = QueryErr.NoSuchAddress
                 is RequestResult.Success -> {
@@ -65,16 +68,14 @@ class RegisterViewModel(
 
     fun register() {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = registerRepository.register(
-                name = uiState.name,
+            val registerDTO = RegisterDTO(
                 login = uiState.login,
                 password = uiState.password,
-                lat = uiState.queryUIState.chosenAddress?.lat ?: return@launch,
-                lon = uiState.queryUIState.chosenAddress?.lon ?: return@launch,
-                addressName = uiState.queryUIState.chosenAddress?.addressName ?: return@launch
+                name = uiState.name,
+                address = uiState.queryUIState.chosenAddress ?: return@launch,
+                image = _uiState.userIconUri ?: return@launch
             )
-
-            when (result) {
+            when (val result = createUserUseCase(registerDTO)) {
                 RequestResult.ClientError -> {
                     _uiState.networkErr = NetworkErr.ClientErr
                 }
@@ -105,7 +106,12 @@ class RegisterViewModel(
 
     fun chooseIcon(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.userIcon = mediaContentRepository.getImage(uri)
+            _uiState.userIcon = mediaRepository.getImage(uri)
+            if (uiState.userIcon != null) {
+                _uiState.userIconUri = uri
+            } else {
+                _uiState.userIconUri = null
+            }
         }
     }
 }
@@ -123,7 +129,7 @@ private class RegisterScreenUIStateMutable : RegisterScreenUIState {
     override var userExistsErr by mutableStateOf(false)
     override var passwordConfirmErr by mutableStateOf(false)
 
-
+    var userIconUri: Uri? = null
     override var userIcon: ImageBitmap? by mutableStateOf(null)
     override var networkErr: NetworkErr? by mutableStateOf(null)
 }

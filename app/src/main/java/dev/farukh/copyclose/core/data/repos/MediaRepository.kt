@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.features.register.data
+package dev.farukh.copyclose.core.data.repos
 
 import android.content.Context
 import android.graphics.BitmapFactory
@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class MediaContentRepository(private val context: Context) {
+class MediaRepository(private val context: Context) {
     suspend fun getImage(uri: Uri): ImageBitmap? = withContext(Dispatchers.IO) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -23,4 +23,10 @@ class MediaContentRepository(private val context: Context) {
             null
         }
     }
+
+    suspend fun bytesFromUri(uri: Uri) = withContext(Dispatchers.IO) {
+        context.contentResolver.openInputStream(uri)
+    }
+
+    suspend fun bytesFromUri(uriString: String) = bytesFromUri(Uri.parse(uriString))
 }

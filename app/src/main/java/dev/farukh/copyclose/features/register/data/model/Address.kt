@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.core.model
+package dev.farukh.copyclose.core.data.model
 
 class Address(
     val addressName: String,

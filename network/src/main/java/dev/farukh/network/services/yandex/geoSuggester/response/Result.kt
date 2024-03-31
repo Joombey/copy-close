@@ -7,14 +7,14 @@ import kotlinx.serialization.Serializable
 data class Result(
 //    @SerialName("address")
 //    val address: Address,
-    @SerialName("distance")
-    val distance: Distance,
-    @SerialName("subtitle")
-    val subtitle: Subtitle,
-    @SerialName("tags")
-    val tags: List<String>,
-    @SerialName("title")
-    val title: Title,
+//    @SerialName("distance")
+//    val distance: Distance,
+//    @SerialName("subtitle")
+//    val subtitle: Subtitle,
+//    @SerialName("tags")
+//    val tags: List<String>,
+//    @SerialName("title")
+//    val title: Title,
     @SerialName("uri")
     val uri: String
 )

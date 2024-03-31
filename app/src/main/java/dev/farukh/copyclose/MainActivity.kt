@@ -63,9 +63,7 @@ fun App(
             .fillMaxSize()
     ) {
         authGraph(
-            onLoginSuccess = {
-//                navController.navigate(Screen.AuthGraph.Auth.route)
-            },
+            onLoginSuccess = {},
             onRegisterPress = viewModel::toRegister,
             onRegisterSuccess = viewModel::toAuth,
         )

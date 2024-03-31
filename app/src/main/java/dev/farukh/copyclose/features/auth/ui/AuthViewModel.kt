@@ -30,7 +30,7 @@ class AuthViewModel(
     }
 
     fun login() = viewModelScope.async(Dispatchers.IO) {
-        when(val result = authService.signIn(uiState.login, uiState.password)) {
+        when(val result = authService.logIn(uiState.login, uiState.password)) {
             RequestResult.ClientError -> {
                 _errChannel.send(AuthErrors.ErrorClient)
                 false

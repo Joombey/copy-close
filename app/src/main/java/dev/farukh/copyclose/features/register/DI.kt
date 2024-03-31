@@ -1,7 +1,6 @@
 package dev.farukh.copyclose.features.register
 
-import dev.farukh.copyclose.features.register.data.MediaContentRepository
-import dev.farukh.copyclose.features.register.data.RegisterRepository
+import dev.farukh.copyclose.features.register.data.GeoRepository
 import dev.farukh.copyclose.features.register.ui.RegisterViewModel
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -11,13 +10,11 @@ fun registerDI(parentDI: DI) = DI {
     extend(parentDI)
 
     bindProvider {
-        RegisterRepository(
-            instance(),
+        GeoRepository(
             instance(),
             instance(),
         )
     }
 
-    bindProvider { RegisterViewModel(instance(), instance()) }
-    bindProvider { MediaContentRepository(instance()) }
+    bindProvider { RegisterViewModel(instance(), instance(), instance()) }
 }

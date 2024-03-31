@@ -1,8 +1,6 @@
 package dev.farukh.copyclose.features.register.data
 
-import dev.farukh.copyclose.core.model.Address
-import dev.farukh.network.services.copyClose.authService.AuthService
-import dev.farukh.network.services.copyClose.authService.requests.SignUpModel
+import dev.farukh.copyclose.core.data.model.Address
 import dev.farukh.network.services.yandex.geoCoder.YandexGeoCoderService
 import dev.farukh.network.services.yandex.geoCoder.response.FeatureMember
 import dev.farukh.network.services.yandex.geoCoder.response.GeoCoderResponse
@@ -11,8 +9,7 @@ import dev.farukh.network.utils.RequestResult
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
-class RegisterRepository(
-    private val authService: AuthService,
+class GeoRepository(
     private val yandexGeoSuggesterService: YandexGeoSuggesterService,
     private val yandexGeoCoderService: YandexGeoCoderService
 ) {
@@ -40,25 +37,6 @@ class RegisterRepository(
                 RequestResult.Success(mappedResult)
             }
         }
-    }
-
-    suspend fun register(
-        name: String,
-        login: String,
-        password: String,
-        lat: Double,
-        lon: Double,
-        addressName: String
-    ): RequestResult<Boolean> {
-        val model = SignUpModel(
-            name = name,
-            login = login,
-            password = password,
-            lat = lat,
-            lon = lon,
-            address = addressName,
-        )
-        return authService.signUp(model)
     }
 }
 

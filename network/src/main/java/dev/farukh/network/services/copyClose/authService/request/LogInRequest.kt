@@ -1,10 +1,10 @@
-package dev.farukh.network.services.copyClose.authService.requests
+package dev.farukh.network.services.copyClose.authService.request
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class SignInModel(
+class LogInRequest(
     @SerialName("login")
     private val login: String,
     @SerialName("password")

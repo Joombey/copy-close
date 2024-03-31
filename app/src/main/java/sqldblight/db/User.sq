@@ -1,0 +1,32 @@
+CREATE TABLE IF NOT EXISTS userEntity (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    login TEXT NOT NULL,
+    icon TEXT NOT NULL,
+    iconUrl TEXT NOT NULL,
+    roleID INTEGER NOT NULL,
+    addressID TEXT NOT NULL,
+    authToken TEXT,
+
+    CONSTRAINT role_con FOREIGN KEY (roleID) REFERENCES roleEntity (id),
+    CONSTRAINT address_con FOREIGN KEY (addressID) REFERENCES addressEntity (id)
+);
+
+createUser:
+INSERT OR REPLACE INTO userEntity (id, name, login, icon, iconUrl, roleID, addressID, authToken)
+VALUES (?, ?, ? ,?, ?, ?, ?, ?);
+
+userExists:
+SELECT EXISTS (
+    SELECT * FROM userEntity WHERE id = ? AND login = ?
+);
+
+-- getUserByID:
+-- SELECT * FROM userEntity
+-- WHERE id = ?;
+--
+-- user:
+-- SELECT name, icon, canBan, canBuy, canSell, addressName, lat, lon FROM userEntity
+-- INNER JOIN address ON userEntity.addressID = address.id
+-- INNER JOIN role ON userEntity.roleID = role.id
+-- WHERE userEntity.id = ?;

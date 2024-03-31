@@ -1,0 +1,19 @@
+CREATE TABLE roleEntity (
+    id INTEGER PRIMARY KEY,
+    canBuy INTEGER NOT NULL DEFAULT 1,
+    canSell INTEGER NOT NULL DEFAULT 0,
+    canBan INTEGER NOT NULL DEFAULT 0
+);
+
+createRole:
+INSERT INTO roleEntity(id, canBuy, canSell, canBan)
+VALUES (?, ?, ? ,?);
+
+getRoleByID:
+SELECT * FROM roleEntity
+WHERE id = ?;
+
+roleExists:
+SELECT EXISTS (
+    SELECT * FROM roleEntity WHERE id = ?
+);

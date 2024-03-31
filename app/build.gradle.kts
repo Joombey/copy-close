@@ -92,7 +92,7 @@ sqldelight {
     databases {
         create("CopyCloseDB") {
             srcDirs("src/main/java/sqldblight")
-            packageName = "db.farukh"
+            packageName = "db"
         }
     }
 }

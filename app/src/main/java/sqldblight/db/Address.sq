@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS addressEntity (
+    id TEXT PRIMARY KEY,
+    addressName TEXT NOT NULL,
+    lat REAL NOT NULL,
+    lon REAL NOT NULL
+);
+
+createAddress:
+INSERT INTO addressEntity(id, addressName, lat, lon)
+VALUES (?, ?, ?, ?);
+
+addressExists:
+SELECT EXISTS(
+    SELECT * FROM addressEntity WHERE id = ?
+);
