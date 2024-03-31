@@ -3,12 +3,17 @@ package dev.farukh.copyclose.features.register.ui.compose
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
+import dev.farukh.copyclose.R
 import dev.farukh.copyclose.features.register.registerDI
 import dev.farukh.copyclose.features.register.ui.RegisterViewModel
 import dev.farukh.copyclose.utils.UiUtils
@@ -29,39 +34,50 @@ fun RegisterScreen(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+        verticalArrangement = Arrangement.spacedBy(UiUtils.arrangementDefault)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(UiUtils.arrangementDefault)
-        ) {
-            OutlinedTextField(
-                value = viewModel.uiState.login,
-                onValueChange = viewModel::setLogin,
-                isError = viewModel.uiState.userExistsErr,
-            )
-            OutlinedTextField(
-                value = viewModel.uiState.password,
-                onValueChange = viewModel::setPassword,
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = viewModel.uiState.passwordConfirm,
-                onValueChange = viewModel::setPasswordConfirm,
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
-            )
+        IconChooserView(
+            icon = viewModel.uiState.userIcon,
+            onChoose = viewModel::chooseIcon,
+            modifier = Modifier.size(150.dp),
+        )
+        OutlinedTextField(
+            value = viewModel.uiState.login,
+            onValueChange = viewModel::setLogin,
+            isError = viewModel.uiState.userExistsErr,
+            label = {
+                Text(stringResource(id = R.string.login))
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = viewModel.uiState.password,
+            onValueChange = viewModel::setPassword,
+            visualTransformation = PasswordVisualTransformation(),
+            label = {
+                Text(stringResource(id = R.string.password))
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = viewModel.uiState.passwordConfirm,
+            onValueChange = viewModel::setPasswordConfirm,
+            visualTransformation = PasswordVisualTransformation(),
+            label = {
+                Text(stringResource(id = R.string.password_confirm))
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
 
-            MapChooserView(
-                uiState = viewModel.uiState.mapUIState,
-                onAddressClick = viewModel::chooseAddress,
-                onQueryChange = viewModel::setQuery,
-                onQueryClick = viewModel::query,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
-        }
+        QueryField(
+            uiState = viewModel.uiState.queryUIState,
+            onAddressClick = viewModel::chooseAddress,
+            onQueryChange = viewModel::setQuery,
+            onQueryClick = viewModel::query,
+            label = {
+                Text(stringResource(id = R.string.enter_address))
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }

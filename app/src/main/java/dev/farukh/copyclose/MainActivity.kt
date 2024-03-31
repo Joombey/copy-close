@@ -7,11 +7,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
@@ -21,7 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import dev.farukh.copyclose.features.auth.ui.compose.AuthScreen
 import dev.farukh.copyclose.features.register.ui.compose.RegisterScreen
 import dev.farukh.copyclose.ui.theme.CopycloseTheme
-import dev.farukh.copyclose.utils.toast
+import dev.farukh.copyclose.utils.UiUtils
 import org.kodein.di.compose.rememberViewModel
 import org.kodein.di.compose.withDI
 
@@ -54,7 +52,7 @@ fun App(
     val viewModel: MainViewModel by rememberViewModel()
     LaunchedEffect(Unit) {
         viewModel.currentScreen.collect {
-            navController.navigate(it.route)
+            navController.navigateWithOptionsTo(it.route)
         }
     }
     NavHost(
@@ -98,10 +96,9 @@ fun NavGraphBuilder.authGraph(
             route = Screen.AuthGraph.Register.route,
             arguments = Screen.AuthGraph.Register.args
         ) {
-//            Text("")
-//            LocalContext.current.toast("Wow")
             RegisterScreen(
-                onRegisterSuccess = onRegisterSuccess
+                onRegisterSuccess = onRegisterSuccess,
+                modifier = Modifier.padding(UiUtils.containerPaddingDefault)
             )
         }
     }

@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.farukh.copyclose.R
 import dev.farukh.copyclose.features.auth.authDI
 import dev.farukh.copyclose.features.auth.ui.AuthErrors
@@ -60,7 +59,7 @@ fun AuthScreen(
                 }
             }
         ) {
-            Text(stringResource(id = R.string.login))
+            Text(stringResource(id = R.string.enter))
         }
         Button(
             onClick = onRegister
