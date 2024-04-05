@@ -1,48 +1,74 @@
 package dev.farukh.copyclose.core.data.repos
 
-import db.CopyCloseDB
+import dev.farukh.copyclose.core.NetworkError
+import dev.farukh.copyclose.core.ResourceError
 import dev.farukh.copyclose.core.data.dto.UserDTO
-import dev.farukh.copyclose.utils.long
+import dev.farukh.copyclose.core.data.source.UserLocalDataSource
+import dev.farukh.copyclose.core.data.source.UserRemoteDataSource
+import dev.farukh.copyclose.utils.Result
+import dev.farukh.copyclose.utils.extensions.asNetworkError
 import dev.farukh.network.core.AddressCore
 import dev.farukh.network.core.RoleCore
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import dev.farukh.network.services.copyClose.common.response.UserInfoResponse
+import dev.farukh.network.utils.RequestResult
 
-class UserRepository(private val db: CopyCloseDB) {
+class UserRepository(
+    private val localDataSource: UserLocalDataSource,
+    private val remoteDataSource: UserRemoteDataSource
+) {
     suspend fun createUser(
         role: RoleCore,
         user: UserDTO,
         address: AddressCore,
-    ) {
-        withContext(Dispatchers.IO) {
-            if (!db.addressQueries.addressExists(address.id!!).executeAsOne()) {
-                db.addressQueries.createAddress(
-                    id = address.id!!,
-                    addressName = address.addressName,
-                    lat = address.lat,
-                    lon = address.lon
-                )
-            }
+    ) = localDataSource.createOrUpdateUser(role, user, address)
 
-            if (!db.roleQueries.roleExists(user.roleID.toLong()).executeAsOne()) {
-                db.roleQueries.createRole(
-                    id = role.id.toLong(),
-                    canBuy = role.canBuy.long,
-                    canBan = role.canBan.long,
-                    canSell = role.canSell.long
-                )
-            }
+    suspend fun updateUserData(login: String, authToken: String): Result<String, NetworkError> {
+        remoteDataSource.getUserInfo(login, authToken)
+        return when (val infoResult = remoteDataSource.getUserInfo(login, authToken)) {
+            is RequestResult.ClientError -> infoResult.asNetworkError()
+            is RequestResult.ServerError -> infoResult.asNetworkError()
+            is RequestResult.HostError -> infoResult.asNetworkError()
+            is RequestResult.TimeoutError -> infoResult.asNetworkError()
+            is RequestResult.Unknown -> infoResult.asNetworkError()
 
-            db.userQueries.createUser(
-                id = user.id,
-                name = user.name,
-                login = user.login,
-                icon = user.icon,
-                roleID = role.id.toLong(),
-                addressID = address.id!!,
-                authToken = user.authToken,
-                iconID = user.iconUrl
-            )
+            is RequestResult.Success -> updateLocalInfo(infoResult.data)
         }
     }
+
+    private suspend fun updateLocalInfo(info: UserInfoResponse): Result<String, NetworkError> {
+        val exists = localDataSource.userExists(info.userID)
+        val imageValid = localDataSource.checkImageValid(info.userID, info.imageID)
+
+        return if (exists && imageValid) {
+            Result.Success(info.userID)
+        } else when (val uriResult = remoteDataSource.getUserImage(info.imageID)) {
+            is Result.Error -> uriResult
+            is Result.Success -> {
+                localDataSource.createOrUpdateUser(
+                    role = info.role,
+                    address = info.address,
+                    user = UserDTO(
+                        id = info.userID,
+                        login = info.login,
+                        roleID = info.role.id,
+                        addressID = info.address.id!!,
+                        name = info.name,
+                        authToken = info.authToken,
+                        icon = uriResult.data,
+                        iconUrl = info.imageID
+                    )
+                )
+                Result.Success(info.userID)
+            }
+        }
+    }
+}
+
+private fun RequestResult.ClientError.asNetworkError(): Result.Error<NetworkError> {
+    return Result.Error(
+        when (code) {
+            404 -> ResourceError.NotFoundError
+            else -> NetworkError.UnknownError(Exception("$code $errorMessage"))
+        }
+    )
 }

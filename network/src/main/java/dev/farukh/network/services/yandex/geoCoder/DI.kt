@@ -2,10 +2,7 @@ package dev.farukh.network.services.yandex.geoCoder
 
 import android.util.Log
 import dev.farukh.network.BuildConfig
-import dev.farukh.network.di.Tags
-import dev.farukh.network.di.baseDI
-import dev.farukh.network.services.yandex.geoSuggester.YandexGeoSuggesterService
-import dev.farukh.network.services.yandex.geoSuggester.YandexGeoSuggesterServiceImpl
+import dev.farukh.network.Tags
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.DefaultRequest

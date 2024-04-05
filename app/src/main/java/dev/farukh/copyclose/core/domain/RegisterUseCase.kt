@@ -5,9 +5,9 @@ import dev.farukh.copyclose.core.data.dto.UserDTO
 import dev.farukh.copyclose.core.data.repos.AuthRepository
 import dev.farukh.copyclose.core.data.repos.MediaRepository
 import dev.farukh.copyclose.core.data.repos.UserRepository
+import dev.farukh.copyclose.utils.Result
 import dev.farukh.network.core.AddressCore
 import dev.farukh.network.services.copyClose.authService.response.RegisterResponse
-import dev.farukh.network.utils.RequestResult
 
 class RegisterUseCase(
     private val userRepository: UserRepository,
@@ -16,7 +16,7 @@ class RegisterUseCase(
 ) {
     suspend operator fun invoke(
         registerDTO: RegisterDTO
-    ): RequestResult<Boolean> {
+    ): Result<Boolean, Unit> {
         val registerResult = authRepository.register(
             login = registerDTO.login,
             name = registerDTO.name,
@@ -26,9 +26,8 @@ class RegisterUseCase(
             image = mediaRepository.bytesFromUri(registerDTO.image)!!.readBytes(),
         )
         return when (registerResult) {
-            is RequestResult.ClientError -> registerResult
-            is RequestResult.ServerInternalError -> registerResult
-            is RequestResult.Success -> RequestResult.Success(
+            is Result.Error -> Result.Error(Unit)
+            is Result.Success -> Result.Success(
                 onRegisterSuccess(
                     response = registerResult.data,
                     registerDTO = registerDTO

@@ -16,10 +16,11 @@ createUser:
 INSERT OR REPLACE INTO userEntity (id, name, login, icon, iconID, roleID, addressID, authToken)
 VALUES (?, ?, ? ,?, ?, ?, ?, ?);
 
+getIconByID:
+SELECT iconID FROM userEntity WHERE id = ?;
+
 userExists:
-SELECT EXISTS (
-    SELECT * FROM userEntity WHERE id = ? AND login = ?
-);
+SELECT EXISTS (SELECT * FROM userEntity WHERE id = ?);
 
 -- getUserByID:
 -- SELECT * FROM userEntity

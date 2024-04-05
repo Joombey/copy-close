@@ -1,9 +1,8 @@
-package dev.farukh.network.services.daData
+package dev.farukh.network.services.copyClose.common
 
 import android.util.Log
 import dev.farukh.network.BuildConfig
-import dev.farukh.network.di.Tags
-import dev.farukh.network.di.baseDI
+import dev.farukh.network.Tags
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.DefaultRequest
@@ -18,8 +17,8 @@ import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
-internal val daDataModule by DI.Module {
-    bindProvider(Tags.DA_DATA) {
+internal val commonServiceDI by DI.Module {
+    bindProvider(Tags.COPY_CLOSE_COMMON) {
         Json {
             encodeDefaults = true
             isLenient = true
@@ -28,29 +27,26 @@ internal val daDataModule by DI.Module {
             classDiscriminatorMode = ClassDiscriminatorMode.NONE
         }
     }
-    bindProvider(Tags.DA_DATA) {
+    bindProvider(Tags.COPY_CLOSE_COMMON) {
         HttpClient(OkHttp) {
             install(ContentNegotiation) {
-                json(instance(Tags.DA_DATA))
-            }
-            install(DefaultRequest) {
-//                headers["Authorization"] = "Token ${BuildConfig.DaDataApiKey}"
-//                headers["X-Secret"] = BuildConfig.DaDataSecret
-                url(BuildConfig.DaDataURL)
+                json(instance(Tags.COPY_CLOSE_COMMON))
             }
             Logging {
-                logger = object: Logger {
+                logger = object : Logger {
                     override fun log(message: String) {
-                        Log.i("DA_DATA", message)
+                        Log.i("BACK-COMMON", message)
                     }
                 }
                 level = LogLevel.ALL
             }
-            expectSuccess = true
+            install(DefaultRequest) {
+                url(BuildConfig.CopyCloseURL)
+            }
         }
     }
 
-    bindProvider<DaDataService> {
-        DaDataServiceImpl(instance(Tags.DA_DATA), instance(Tags.DA_DATA))
+    bindProvider<CommonService> {
+        CommonService(instance(Tags.COPY_CLOSE_COMMON), instance(Tags.COPY_CLOSE_COMMON))
     }
 }

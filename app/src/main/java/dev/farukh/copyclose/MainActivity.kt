@@ -16,7 +16,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import dev.farukh.copyclose.core.Screen
 import dev.farukh.copyclose.features.auth.ui.compose.AuthScreen
+import dev.farukh.copyclose.features.map.compose.MapScreen
 import dev.farukh.copyclose.features.register.ui.compose.RegisterScreen
 import dev.farukh.copyclose.ui.theme.CopycloseTheme
 import dev.farukh.copyclose.utils.UiUtils
@@ -63,15 +65,32 @@ fun App(
             .fillMaxSize()
     ) {
         authGraph(
-            onLoginSuccess = {},
+            onLoginSuccess = viewModel::toMap,
             onRegisterPress = viewModel::toRegister,
             onRegisterSuccess = viewModel::toAuth,
         )
+        mapGraph(userID = "")
+    }
+}
+
+fun NavGraphBuilder.mapGraph(userID: String) {
+    navigation(
+        startDestination = Screen.MapGraph.Map(userID).navRoute,
+        route = Screen.MapGraph.route,
+        arguments = Screen.MapGraph.args
+    ) {
+        composable(
+            route = Screen.MapGraph.Map.route,
+            arguments = Screen.MapGraph.Map.args,
+        ) { navBackStackEntry ->
+            val userArg = navBackStackEntry.arguments!!.getString("userID")!!
+            MapScreen(userArg)
+        }
     }
 }
 
 fun NavGraphBuilder.authGraph(
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (String) -> Unit,
     onRegisterPress: () -> Unit,
     onRegisterSuccess: () -> Unit,
 ) {

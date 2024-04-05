@@ -6,7 +6,7 @@ CREATE TABLE roleEntity (
 );
 
 createRole:
-INSERT INTO roleEntity(id, canBuy, canSell, canBan)
+INSERT OR REPLACE INTO roleEntity(id, canBuy, canSell, canBan)
 VALUES (?, ?, ? ,?);
 
 getRoleByID:

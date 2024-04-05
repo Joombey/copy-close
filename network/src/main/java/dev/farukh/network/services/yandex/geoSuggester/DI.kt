@@ -2,17 +2,14 @@ package dev.farukh.network.services.yandex.geoSuggester
 
 import android.util.Log
 import dev.farukh.network.BuildConfig
-import dev.farukh.network.di.Tags
-import dev.farukh.network.di.baseDI
+import dev.farukh.network.Tags
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.http.parameters
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json

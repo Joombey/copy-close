@@ -6,15 +6,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.farukh.network.services.copyClose.authService.AuthService
-import dev.farukh.network.utils.RequestResult
+import dev.farukh.copyclose.core.domain.LoginUseCase
+import dev.farukh.copyclose.utils.Result
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.launch
 
 class AuthViewModel(
-    private val authService: AuthService,
+    private val loginUseCase: LoginUseCase
 ) : ViewModel() {
     private val _errChannel = Channel<AuthErrors>()
     val errChannel: ReceiveChannel<AuthErrors> = _errChannel
@@ -29,17 +29,10 @@ class AuthViewModel(
         _uiState.password = pass
     }
 
-    fun login() = viewModelScope.async(Dispatchers.IO) {
-        when(val result = authService.logIn(uiState.login, uiState.password)) {
-            RequestResult.ClientError -> {
-                _errChannel.send(AuthErrors.ErrorClient)
-                false
-            }
-            RequestResult.ServerInternalError -> {
-                _errChannel.send(AuthErrors.ServerError)
-                false
-            }
-            is RequestResult.Success -> result.data
+    fun logIn() = viewModelScope.launch(Dispatchers.IO) {
+        when (val loginResult = loginUseCase(uiState.login, uiState.password)) {
+            is Result.Error -> {}
+            is Result.Success -> _uiState.loggedIn = loginResult.data
         }
     }
 }
@@ -51,12 +44,14 @@ sealed interface AuthErrors {
 }
 
 private class AuthScreenUIStateMutable : AuthScreenUIState {
+    override var loggedIn: String? by mutableStateOf(null)
     override var login: String by mutableStateOf("")
     override var password: String by mutableStateOf("")
 }
 
 @Stable
 interface AuthScreenUIState {
+    val loggedIn: String?
     val login: String
     val password: String
 }

@@ -1,6 +1,10 @@
 package dev.farukh.copyclose.features.register.data.repo
 
+import dev.farukh.copyclose.core.AuthError
+import dev.farukh.copyclose.core.NetworkError
 import dev.farukh.copyclose.core.data.model.Address
+import dev.farukh.copyclose.utils.Result
+import dev.farukh.copyclose.utils.extensions.asNetworkError
 import dev.farukh.network.services.yandex.geoCoder.YandexGeoCoderService
 import dev.farukh.network.services.yandex.geoCoder.response.FeatureMember
 import dev.farukh.network.services.yandex.geoCoder.response.GeoCoderResponse
@@ -13,10 +17,14 @@ class GeoRepository(
     private val yandexGeoSuggesterService: YandexGeoSuggesterService,
     private val yandexGeoCoderService: YandexGeoCoderService
 ) {
-    suspend fun query(q: String): RequestResult<List<Address>> = coroutineScope {
+    suspend fun query(q: String): Result<List<Address>, NetworkError> = coroutineScope {
         when (val suggesterResult = yandexGeoSuggesterService.query(q)) {
-            is RequestResult.ClientError -> suggesterResult
-            is RequestResult.ServerInternalError -> suggesterResult
+            is RequestResult.ClientError -> suggesterResult.asNetworkError()
+            is RequestResult.ServerError -> suggesterResult.asNetworkError()
+            is RequestResult.HostError -> suggesterResult.asNetworkError()
+            is RequestResult.TimeoutError -> suggesterResult.asNetworkError()
+            is RequestResult.Unknown -> suggesterResult.asNetworkError()
+
             is RequestResult.Success -> {
                 val mappedResult = suggesterResult.data.results
                     .map { suggest -> async { yandexGeoCoderService.withUri(suggest.uri) } }
@@ -34,10 +42,19 @@ class GeoRepository(
                     .flatten()
                     .toList()
 
-                RequestResult.Success(mappedResult)
+                Result.Success(mappedResult)
             }
         }
     }
+}
+
+private fun RequestResult.ClientError.asNetworkError(): Result.Error<NetworkError> {
+    return Result.Error(
+        when (code) {
+            401 -> AuthError.AuthTokenError
+            else -> NetworkError.UnknownError(Exception("got unknown code: $code\nmessage: $errorMessage"))
+        }
+    )
 }
 
 private fun FeatureMember.toAddress(): Address {

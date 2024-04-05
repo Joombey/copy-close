@@ -7,7 +7,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -17,21 +16,24 @@ import dev.farukh.copyclose.features.auth.authDI
 import dev.farukh.copyclose.features.auth.ui.AuthErrors
 import dev.farukh.copyclose.features.auth.ui.AuthViewModel
 import dev.farukh.copyclose.utils.UiUtils
-import dev.farukh.copyclose.utils.toast
-import kotlinx.coroutines.launch
+import dev.farukh.copyclose.utils.extensions.toast
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.rememberViewModel
 import org.kodein.di.compose.withDI
 
 @Composable
 fun AuthScreen(
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (String) -> Unit,
     onRegister: () -> Unit,
     modifier: Modifier = Modifier,
 ) = withDI(di = authDI(localDI())) {
     val viewModel: AuthViewModel by rememberViewModel()
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    LaunchedEffect(key1 = viewModel.uiState.loggedIn) {
+        viewModel.uiState.loggedIn?.let(onLoginSuccess)
+    }
+
     LaunchedEffect(Unit) {
         for (err in viewModel.errChannel) {
             when(err) {
@@ -52,12 +54,7 @@ fun AuthScreen(
             onValueChange = viewModel::setPassword
         )
         Button(
-            onClick = {
-                scope.launch {
-                    val loginIsSuccess = viewModel.login().await()
-                    if (loginIsSuccess) onLoginSuccess()
-                }
-            }
+            onClick = viewModel::logIn
         ) {
             Text(stringResource(id = R.string.enter))
         }

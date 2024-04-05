@@ -14,7 +14,7 @@ import dev.farukh.copyclose.core.data.model.Address
 import dev.farukh.copyclose.core.data.repos.MediaRepository
 import dev.farukh.copyclose.core.domain.RegisterUseCase
 import dev.farukh.copyclose.features.register.data.repo.GeoRepository
-import dev.farukh.network.utils.RequestResult
+import dev.farukh.copyclose.utils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -29,9 +29,10 @@ class RegisterViewModel(
     fun query() {
         viewModelScope.launch(Dispatchers.IO) {
             when (val result = geoRepository.query(uiState.queryUIState.query)) {
-                RequestResult.ClientError -> _uiState._queryUIState.queryError = QueryErr.NoSuchAddress
-                RequestResult.ServerInternalError -> _uiState._queryUIState.queryError = QueryErr.NoSuchAddress
-                is RequestResult.Success -> {
+                is Result.Error -> {
+                    _uiState._queryUIState.queryError = QueryErr.NoSuchAddress
+                }
+                is Result.Success -> {
                     _uiState._queryUIState._addressList.clear()
                     _uiState._queryUIState._addressList.addAll(result.data)
 
@@ -81,15 +82,8 @@ class RegisterViewModel(
                 isSeller = false,
             )
             when (val result = registerUseCase(registerDTO)) {
-                RequestResult.ClientError -> {
-                    _uiState.networkErr = NetworkErr.ClientErr
-                }
-
-                RequestResult.ServerInternalError -> {
-                    _uiState.networkErr = NetworkErr.ServerErr
-                }
-
-                is RequestResult.Success -> {
+                is Result.Error -> { _uiState.networkErr = NetworkErr.ClientErr }
+                is Result.Success -> {
                     _uiState.registered = result.data
                     _uiState.userExistsErr = !result.data
 
