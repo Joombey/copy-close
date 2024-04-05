@@ -15,9 +15,9 @@ class UserRepository(private val db: CopyCloseDB) {
         address: AddressCore,
     ) {
         withContext(Dispatchers.IO) {
-            if (db.addressQueries.addressExists(address.id).executeAsOne()) {
+            if (!db.addressQueries.addressExists(address.id!!).executeAsOne()) {
                 db.addressQueries.createAddress(
-                    id = address.id,
+                    id = address.id!!,
                     addressName = address.addressName,
                     lat = address.lat,
                     lon = address.lon
@@ -39,9 +39,9 @@ class UserRepository(private val db: CopyCloseDB) {
                 login = user.login,
                 icon = user.icon,
                 roleID = role.id.toLong(),
-                addressID = address.id,
+                addressID = address.id!!,
                 authToken = user.authToken,
-                iconUrl = user.iconUrl
+                iconID = user.iconUrl
             )
         }
     }

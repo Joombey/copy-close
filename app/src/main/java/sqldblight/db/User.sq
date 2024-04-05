@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS userEntity (
     name TEXT NOT NULL,
     login TEXT NOT NULL,
     icon TEXT NOT NULL,
-    iconUrl TEXT NOT NULL,
+    iconID TEXT NOT NULL,
     roleID INTEGER NOT NULL,
     addressID TEXT NOT NULL,
     authToken TEXT,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS userEntity (
 );
 
 createUser:
-INSERT OR REPLACE INTO userEntity (id, name, login, icon, iconUrl, roleID, addressID, authToken)
+INSERT OR REPLACE INTO userEntity (id, name, login, icon, iconID, roleID, addressID, authToken)
 VALUES (?, ?, ? ,?, ?, ?, ?, ?);
 
 userExists:

@@ -3,7 +3,6 @@ package dev.farukh.copyclose
 import android.app.Application
 import android.content.Context
 import dev.farukh.copyclose.core.coreDI
-import dev.farukh.network.di.networkDI
 import org.kodein.di.DI
 import org.kodein.di.DIAware
 import org.kodein.di.bindProvider
@@ -16,7 +15,6 @@ class CopyCloseApp : Application(), DIAware {
     }
 
     private val appDI = DI {
-        import(networkDI)
         bindProvider { applicationContext }
         bindProvider { MainViewModel() }
     }

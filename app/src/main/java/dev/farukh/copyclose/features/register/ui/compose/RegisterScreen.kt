@@ -2,12 +2,14 @@ package dev.farukh.copyclose.features.register.ui.compose
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -27,9 +29,7 @@ fun RegisterScreen(
     modifier: Modifier = Modifier,
 ) = withDI(di = registerDI(localDI())) {
     val viewModel: RegisterViewModel by rememberViewModel()
-    LaunchedEffect(key1 = viewModel.uiState.registered) {
-        if (viewModel.uiState.registered) onRegisterSuccess()
-    }
+    if (viewModel.uiState.registered) onRegisterSuccess()
 
     Column(
         modifier = modifier,
@@ -41,6 +41,12 @@ fun RegisterScreen(
             onChoose = viewModel::chooseIcon,
             modifier = Modifier.size(150.dp),
         )
+
+        IsSellerCheckbox(
+            checked = viewModel.uiState.isSeller,
+            onCheckedChange = viewModel::sellerChange
+        )
+
         OutlinedTextField(
             value = viewModel.uiState.login,
             onValueChange = viewModel::setLogin,
@@ -50,6 +56,17 @@ fun RegisterScreen(
             },
             modifier = Modifier.fillMaxWidth()
         )
+
+        OutlinedTextField(
+            value = viewModel.uiState.name,
+            onValueChange = viewModel::setName,
+            isError = viewModel.uiState.userExistsErr,
+            label = {
+                Text(stringResource(id = R.string.name))
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
         OutlinedTextField(
             value = viewModel.uiState.password,
             onValueChange = viewModel::setPassword,
@@ -59,6 +76,7 @@ fun RegisterScreen(
             },
             modifier = Modifier.fillMaxWidth()
         )
+
         OutlinedTextField(
             value = viewModel.uiState.passwordConfirm,
             onValueChange = viewModel::setPasswordConfirm,
@@ -77,7 +95,30 @@ fun RegisterScreen(
             label = {
                 Text(stringResource(id = R.string.enter_address))
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
         )
+
+        OutlinedButton(
+            onClick = viewModel::register
+        ) {
+            Text(text = stringResource(id = R.string.register))
+        }
+    }
+}
+
+@Composable
+fun IsSellerCheckbox(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ){
+        Text(text = stringResource(id = R.string.is_seller))
+        Checkbox(checked = checked, onCheckedChange = onCheckedChange)
     }
 }

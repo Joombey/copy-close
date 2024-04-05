@@ -9,7 +9,7 @@ import dev.farukh.network.core.AddressCore
 import dev.farukh.network.services.copyClose.authService.response.RegisterResponse
 import dev.farukh.network.utils.RequestResult
 
-class CreateUserUseCase(
+class RegisterUseCase(
     private val userRepository: UserRepository,
     private val authRepository: AuthRepository,
     private val mediaRepository: MediaRepository
@@ -22,6 +22,7 @@ class CreateUserUseCase(
             name = registerDTO.name,
             password = registerDTO.password,
             address = registerDTO.address,
+            isSeller = registerDTO.isSeller,
             image = mediaRepository.bytesFromUri(registerDTO.image)!!.readBytes(),
         )
         return when (registerResult) {
@@ -45,7 +46,7 @@ class CreateUserUseCase(
             roleID = response.role.id,
             addressID = response.addressID,
             authToken = response.authToken,
-            iconUrl = response.imageUrl,
+            iconUrl = response.imageID,
             name = registerDTO.name,
             icon = registerDTO.image.toString(),
             login = registerDTO.login,

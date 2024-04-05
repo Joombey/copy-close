@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
+import android.provider.MediaStore
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import kotlinx.coroutines.Dispatchers
@@ -29,4 +30,20 @@ class MediaRepository(private val context: Context) {
     }
 
     suspend fun bytesFromUri(uriString: String) = bytesFromUri(Uri.parse(uriString))
+    fun getMediaName(image: Uri): String? {
+        return context.contentResolver.query(
+            image,
+            null,
+            null,
+            null,
+            null,
+            null
+        )?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
+            while (!cursor.moveToNext()) {
+                return cursor.getString(nameIndex)
+            }
+            return null
+        }
+    }
 }

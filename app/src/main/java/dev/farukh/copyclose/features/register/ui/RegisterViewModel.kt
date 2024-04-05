@@ -12,8 +12,8 @@ import androidx.lifecycle.viewModelScope
 import dev.farukh.copyclose.core.data.dto.RegisterDTO
 import dev.farukh.copyclose.core.data.model.Address
 import dev.farukh.copyclose.core.data.repos.MediaRepository
-import dev.farukh.copyclose.core.domain.CreateUserUseCase
-import dev.farukh.copyclose.features.register.data.GeoRepository
+import dev.farukh.copyclose.core.domain.RegisterUseCase
+import dev.farukh.copyclose.features.register.data.repo.GeoRepository
 import dev.farukh.network.utils.RequestResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 class RegisterViewModel(
     private val geoRepository: GeoRepository,
     private val mediaRepository: MediaRepository,
-    private val createUserUseCase: CreateUserUseCase,
+    private val registerUseCase: RegisterUseCase,
 ) : ViewModel() {
     private val _uiState = RegisterScreenUIStateMutable()
     val uiState: RegisterScreenUIState = _uiState
@@ -66,6 +66,10 @@ class RegisterViewModel(
         _uiState._queryUIState.query = value
     }
 
+    fun setName(value: String) {
+        _uiState.name = value
+    }
+
     fun register() {
         viewModelScope.launch(Dispatchers.IO) {
             val registerDTO = RegisterDTO(
@@ -73,9 +77,10 @@ class RegisterViewModel(
                 password = uiState.password,
                 name = uiState.name,
                 address = uiState.queryUIState.chosenAddress ?: return@launch,
-                image = _uiState.userIconUri ?: return@launch
+                image = _uiState.userIconUri ?: return@launch,
+                isSeller = false,
             )
-            when (val result = createUserUseCase(registerDTO)) {
+            when (val result = registerUseCase(registerDTO)) {
                 RequestResult.ClientError -> {
                     _uiState.networkErr = NetworkErr.ClientErr
                 }
@@ -114,13 +119,18 @@ class RegisterViewModel(
             }
         }
     }
+
+    fun sellerChange(b: Boolean) {
+        _uiState.isSeller = b
+    }
 }
 
 private class RegisterScreenUIStateMutable : RegisterScreenUIState {
     val _queryUIState = QueryUIStateMutable()
     override val queryUIState: QueryUIState = _queryUIState
 
-    override val name by mutableStateOf("")
+    override var isSeller: Boolean by mutableStateOf(false)
+    override var name by mutableStateOf("")
     override var login by mutableStateOf("")
     override var password by mutableStateOf("")
     override var passwordConfirm by mutableStateOf("")
@@ -145,6 +155,7 @@ private class QueryUIStateMutable: QueryUIState {
 }
 
 interface RegisterScreenUIState {
+    val isSeller: Boolean
     val name: String
     val login: String
     val password: String

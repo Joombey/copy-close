@@ -9,4 +9,5 @@ class RegisterDTO(
     val name: String,
     val address: Address,
     val image: Uri,
+    val isSeller: Boolean
 )

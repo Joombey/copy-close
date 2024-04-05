@@ -9,4 +9,6 @@
     <string name="password">Пароль</string>
     <string name="password_confirm">Подтвердите пароль</string>
     <string name="enter_address">Введите адрес</string>
+    <string name="is_seller">Продавец услуг</string>
+    <string name="name">Имя</string>
 </resources>

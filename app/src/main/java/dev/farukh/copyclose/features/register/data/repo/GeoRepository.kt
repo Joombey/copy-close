@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.features.register.data
+package dev.farukh.copyclose.features.register.data.repo
 
 import dev.farukh.copyclose.core.data.model.Address
 import dev.farukh.network.services.yandex.geoCoder.YandexGeoCoderService

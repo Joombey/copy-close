@@ -19,6 +19,7 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.http.path
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -26,7 +27,7 @@ interface AuthService {
     suspend fun logIn(login: String, password: String): RequestResult<Boolean>
     suspend fun register(
         registerRequest: RegisterRequest,
-        image: ByteArray
+        image: ByteArray,
     ): RequestResult<RegisterResponse>
 }
 
@@ -49,38 +50,47 @@ internal class AuthServiceImpl(
         }
     }
 
-    override suspend fun register(registerRequest: RegisterRequest, image: ByteArray) =
-        client.commonPost(
-            onResponse = { body<RegisterResponse>() },
-            config = {
-                contentType(ContentType.MultiPart.FormData)
-                setBody(
-                    MultiPartFormDataContent(
-                        formData {
-                            append(
-                                key = "register",
-                                value = json.encodeToString(registerRequest),
-                                headers = Headers.build {
-                                    append(
-                                        HttpHeaders.ContentType,
-                                        ContentType.Application.Json.mimeString
-                                    )
-                                }
-                            )
-
-                            append(
-                                key = "image",
-                                value = image,
-                                headers = Headers.build {
-                                    append(
-                                        HttpHeaders.ContentType,
-                                        ContentType.Image.JPEG.mimeString
-                                    )
-                                }
-                            )
-                        }
-                    )
-                )
+    override suspend fun register(
+        registerRequest: RegisterRequest,
+        image: ByteArray,
+    ) = client.commonPost(
+        onResponse = { body<RegisterResponse>() },
+        config = {
+            url {
+                path("auth/register")
             }
-        )
+            contentType(ContentType.MultiPart.FormData)
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        append(
+                            key = "register",
+                            value = json.encodeToString(registerRequest),
+                            headers = Headers.build {
+                                append(
+                                    HttpHeaders.ContentType,
+                                    ContentType.Application.Json.mimeString
+                                )
+                            }
+                        )
+
+                        append(
+                            key = "image",
+                            value = image,
+                            headers = Headers.build {
+                                append(
+                                    HttpHeaders.ContentType,
+                                    ContentType.Image.JPEG.mimeString
+                                )
+                                append(
+                                    HttpHeaders.ContentDisposition,
+                                    "filename=1"
+                                )
+                            }
+                        )
+                    }
+                )
+            )
+        }
+    )
 }

@@ -1,5 +1,6 @@
 package dev.farukh.network.services.copyClose.authService.request
 
+import dev.farukh.network.core.AddressCore
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -12,9 +13,7 @@ class RegisterRequest(
     @SerialName("name")
     val name: String,
     @SerialName("address")
-    val address: String,
-    @SerialName("lat")
-    val lat: Double,
-    @SerialName("lon")
-    val lon: Double
+    val address: AddressCore,
+    @SerialName("is_seller")
+    val isSeller: Boolean,
 )
