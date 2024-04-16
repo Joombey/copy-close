@@ -21,7 +21,7 @@ sealed interface Screen {
         }
     }
     data class MapScreen(val userID: String): Screen by Companion {
-        val navRoute = "map/$userID"
+        override val route: String = "map/$userID"
         companion object: Screen {
             override val route: String = "map/{userID}"
             override val args: List<NamedNavArgument> = listOf(

@@ -22,7 +22,7 @@ internal fun coreDI(appDI: DI) = DI {
     extend(appDI)
     import(networkDI)
 
-    bindProvider<SqlDriver> { AndroidSqliteDriver(CopyCloseDB.Schema, instance()) }
+    bindProvider<SqlDriver> { AndroidSqliteDriver(CopyCloseDB.Schema, instance(), "db") }
 
     bindSingleton<CopyCloseDB> { CopyCloseDB(instance()) }
 
