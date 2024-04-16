@@ -20,7 +20,7 @@ class MainViewModel : ViewModel() {
 
     fun toMap(userID: String) {
         _currentScreen.update {
-            Screen.MapGraph.Map(userID)
+            Screen.MapScreen(userID)
         }
     }
 }

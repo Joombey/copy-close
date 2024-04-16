@@ -6,18 +6,20 @@ import dev.farukh.copyclose.utils.MediaInserter
 import dev.farukh.copyclose.utils.Result
 import dev.farukh.copyclose.utils.extensions.asNetworkError
 import dev.farukh.copyclose.utils.extensions.asUnknownError
-import dev.farukh.network.services.copyClose.common.CommonService
+import dev.farukh.network.services.copyClose.file.FileService
+import dev.farukh.network.services.copyClose.info.InfoService
 import dev.farukh.network.utils.RequestResult
 
 class UserRemoteDataSource(
-    private val api: CommonService,
+    private val infoService: InfoService,
+    private val fileService: FileService,
     private val mediaInserter: MediaInserter,
 ) {
-    suspend fun getUserInfo(login: String, authToken: String) = api.getUserInfo(login, authToken)
+    suspend fun getUserInfo(login: String, authToken: String) = infoService.getUserInfo(login, authToken)
     suspend fun getUserImage(imageID: String): Result<String, NetworkError> {
         val uri = mediaInserter.createMedia("image/jpeg", imageID)
         return mediaInserter.getMediaOutStream(uri!!)!!.use {
-            when (val result = api.getImage(imageID, it)) {
+            when (val result = fileService.getImage(imageID, it)) {
                 is RequestResult.ClientError -> result.asNetworkError()
                 is RequestResult.ServerError -> result.asNetworkError()
                 is RequestResult.HostError -> result.asNetworkError()

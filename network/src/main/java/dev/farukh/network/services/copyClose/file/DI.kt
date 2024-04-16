@@ -1,4 +1,4 @@
-package dev.farukh.network.services.copyClose.authService
+package dev.farukh.network.services.copyClose.file
 
 import android.util.Log
 import dev.farukh.network.BuildConfig
@@ -17,8 +17,8 @@ import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
-internal val copyCloseModule by DI.Module {
-    bindProvider(Tags.COPY_CLOSE) {
+internal val fileServiceDI by DI.Module {
+    bindProvider(Tags.COPY_CLOSE_FILE) {
         Json {
             encodeDefaults = true
             isLenient = true
@@ -27,26 +27,26 @@ internal val copyCloseModule by DI.Module {
             classDiscriminatorMode = ClassDiscriminatorMode.NONE
         }
     }
-    bindProvider(Tags.COPY_CLOSE) {
+    bindProvider(Tags.COPY_CLOSE_FILE) {
         HttpClient(OkHttp) {
             install(ContentNegotiation) {
-                json(instance(Tags.COPY_CLOSE))
+                json(instance(Tags.COPY_CLOSE_FILE))
             }
             Logging {
                 logger = object : Logger {
                     override fun log(message: String) {
-                        Log.i("BACK", "log: $message")
+                        Log.i("BACK-COMMON", message)
                     }
                 }
                 level = LogLevel.ALL
             }
             install(DefaultRequest) {
-                url(BuildConfig.CopyCloseURL)
+                url("${BuildConfig.CopyCloseURL}/file/")
             }
         }
     }
 
-    bindProvider<AuthService> {
-        AuthServiceImpl(instance(Tags.COPY_CLOSE), instance(Tags.COPY_CLOSE))
+    bindProvider<FileService> {
+        FileServiceImpl(instance(Tags.COPY_CLOSE_FILE))
     }
 }

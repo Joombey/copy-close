@@ -20,19 +20,13 @@ sealed interface Screen {
             override val route: String = "${AuthGraph.route}/register"
         }
     }
-
-    data object MapGraph: Screen {
-        override val route: String = "map"
-        override val args: List<NamedNavArgument> = listOf()
-
-        data class Map(val userID: String): Screen by Companion {
-            val navRoute = "${MapGraph.route}/userID"
-            companion object: Screen {
-                override val route: String = "${MapGraph.route}/{userID}"
-                override val args: List<NamedNavArgument> = listOf(
-                    navArgument("userID") { type = NavType.StringType }
-                )
-            }
+    data class MapScreen(val userID: String): Screen by Companion {
+        val navRoute = "map/$userID"
+        companion object: Screen {
+            override val route: String = "map/{userID}"
+            override val args: List<NamedNavArgument> = listOf(
+                navArgument("userID") { type = NavType.StringType }
+            )
         }
     }
 }

@@ -1,8 +1,8 @@
-package dev.farukh.network.services.copyClose.authService
+package dev.farukh.network.services.copyClose.auth
 
-import dev.farukh.network.services.copyClose.authService.request.LogInRequest
-import dev.farukh.network.services.copyClose.authService.request.RegisterRequest
-import dev.farukh.network.services.copyClose.authService.response.RegisterResponse
+import dev.farukh.network.services.copyClose.auth.request.LogInRequest
+import dev.farukh.network.services.copyClose.auth.request.RegisterRequest
+import dev.farukh.network.services.copyClose.auth.response.RegisterResponse
 import dev.farukh.network.utils.RequestResult
 import dev.farukh.network.utils.commonPost
 import dev.farukh.network.utils.mimeString
@@ -11,12 +11,12 @@ import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.setBody
+import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
-import io.ktor.http.path
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -36,7 +36,11 @@ internal class AuthServiceImpl(
     override suspend fun logIn(login: String, password: String): RequestResult<String> =
         client.commonPost(
             onResponse = { bodyAsText() },
-            config = { setBody(LogInRequest(login, password)) }
+            config = {
+                url("login")
+                contentType(ContentType.Application.Json)
+                setBody(LogInRequest(login, password))
+            }
         )
 
     override suspend fun register(
@@ -45,9 +49,7 @@ internal class AuthServiceImpl(
     ) = client.commonPost(
         onResponse = { body<RegisterResponse>() },
         config = {
-            url {
-                path("auth/register")
-            }
+            url("register")
             contentType(ContentType.MultiPart.FormData)
             setBody(
                 MultiPartFormDataContent(

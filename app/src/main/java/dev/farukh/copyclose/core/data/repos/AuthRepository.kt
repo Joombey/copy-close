@@ -6,9 +6,9 @@ import dev.farukh.copyclose.core.data.model.Address
 import dev.farukh.copyclose.utils.Result
 import dev.farukh.copyclose.utils.extensions.asNetworkError
 import dev.farukh.network.core.AddressCore
-import dev.farukh.network.services.copyClose.authService.AuthService
-import dev.farukh.network.services.copyClose.authService.request.RegisterRequest
-import dev.farukh.network.services.copyClose.authService.response.RegisterResponse
+import dev.farukh.network.services.copyClose.auth.AuthService
+import dev.farukh.network.services.copyClose.auth.request.RegisterRequest
+import dev.farukh.network.services.copyClose.auth.response.RegisterResponse
 import dev.farukh.network.utils.RequestResult
 
 class AuthRepository(private val authService: AuthService) {

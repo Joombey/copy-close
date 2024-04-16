@@ -30,7 +30,7 @@ internal fun coreDI(appDI: DI) = DI {
 
     bindProvider { MediaInserter(instance<Context>().contentResolver) }
 
-    bindProvider { UserRemoteDataSource(instance(), instance()) }
+    bindProvider { UserRemoteDataSource(instance(), instance(), instance()) }
 
     bindProvider { UserRepository(instance(), instance()) }
 

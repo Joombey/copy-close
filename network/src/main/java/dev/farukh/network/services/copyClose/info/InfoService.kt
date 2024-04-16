@@ -1,0 +1,28 @@
+package dev.farukh.network.services.copyClose.info
+
+import dev.farukh.network.services.copyClose.info.response.UserInfoResponse
+import dev.farukh.network.utils.RequestResult
+import dev.farukh.network.utils.commonGet
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.url
+import kotlinx.serialization.json.Json
+
+interface InfoService {
+    suspend fun getUserInfo(login: String, authToken: String): RequestResult<UserInfoResponse>
+}
+
+internal class InfoServiceImpl(
+    private val client: HttpClient,
+    private val json: Json,
+): InfoService {
+    override suspend fun getUserInfo(login: String, authToken: String) = client.commonGet(
+        onResponse = { body<UserInfoResponse>() },
+        config = {
+            url {
+                url("user/$login")
+                parameters["authToken"] = authToken
+            }
+        }
+    )
+}

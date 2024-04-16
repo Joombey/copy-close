@@ -7,7 +7,7 @@ import dev.farukh.copyclose.core.data.repos.MediaRepository
 import dev.farukh.copyclose.core.data.repos.UserRepository
 import dev.farukh.copyclose.utils.Result
 import dev.farukh.network.core.AddressCore
-import dev.farukh.network.services.copyClose.authService.response.RegisterResponse
+import dev.farukh.network.services.copyClose.auth.response.RegisterResponse
 
 class RegisterUseCase(
     private val userRepository: UserRepository,

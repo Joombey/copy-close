@@ -41,7 +41,7 @@ class UserLocalDataSource(private val db: CopyCloseDB) {
     }
 
     suspend fun checkImageValid(userID: String, imageID: String): Boolean = withContext(Dispatchers.IO){
-        db.userQueries.getIconByID(userID).executeAsOneOrNull() == null
+        db.userQueries.getIconByID(userID).executeAsOneOrNull() != null
     }
 
     suspend fun userExists(userID: String): Boolean = withContext(Dispatchers.IO) {

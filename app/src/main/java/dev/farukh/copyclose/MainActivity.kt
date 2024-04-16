@@ -69,19 +69,9 @@ fun App(
             onRegisterPress = viewModel::toRegister,
             onRegisterSuccess = viewModel::toAuth,
         )
-        mapGraph(userID = "")
-    }
-}
-
-fun NavGraphBuilder.mapGraph(userID: String) {
-    navigation(
-        startDestination = Screen.MapGraph.Map(userID).navRoute,
-        route = Screen.MapGraph.route,
-        arguments = Screen.MapGraph.args
-    ) {
         composable(
-            route = Screen.MapGraph.Map.route,
-            arguments = Screen.MapGraph.Map.args,
+            route = Screen.MapScreen.route,
+            arguments = Screen.MapScreen.args,
         ) { navBackStackEntry ->
             val userArg = navBackStackEntry.arguments!!.getString("userID")!!
             MapScreen(userArg)

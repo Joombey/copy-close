@@ -9,7 +9,7 @@ import dev.farukh.copyclose.utils.Result
 import dev.farukh.copyclose.utils.extensions.asNetworkError
 import dev.farukh.network.core.AddressCore
 import dev.farukh.network.core.RoleCore
-import dev.farukh.network.services.copyClose.common.response.UserInfoResponse
+import dev.farukh.network.services.copyClose.info.response.UserInfoResponse
 import dev.farukh.network.utils.RequestResult
 
 class UserRepository(

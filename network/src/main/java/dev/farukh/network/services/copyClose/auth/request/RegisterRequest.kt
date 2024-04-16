@@ -1,4 +1,4 @@
-package dev.farukh.network.services.copyClose.authService.request
+package dev.farukh.network.services.copyClose.auth.request
 
 import dev.farukh.network.core.AddressCore
 import kotlinx.serialization.SerialName
