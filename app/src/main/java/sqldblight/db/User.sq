@@ -7,10 +7,20 @@ CREATE TABLE IF NOT EXISTS userEntity (
     roleID INTEGER NOT NULL,
     addressID TEXT NOT NULL,
     authToken TEXT,
+    isCurrent INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT role_con FOREIGN KEY (roleID) REFERENCES roleEntity (id),
     CONSTRAINT address_con FOREIGN KEY (addressID) REFERENCES addressEntity (id)
 );
+
+activeUser:
+SELECT id FROM userEntity WHERE isCurrent = 1;
+
+makeUserActive:
+UPDATE userEntity SET isCurrent = 1 WHERE id = ?;
+
+makeOtherInActive:
+UPDATE userEntity SET isCurrent = 0 WHERE id != ?;
 
 createUser:
 INSERT OR REPLACE INTO userEntity (id, name, login, icon, iconID, roleID, addressID, authToken)

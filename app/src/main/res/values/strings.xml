@@ -11,4 +11,8 @@
     <string name="enter_address">Введите адрес</string>
     <string name="is_seller">Продавец услуг</string>
     <string name="name">Имя</string>
+    <string name="orders">Заказы</string>
+    <string name="map">Карта</string>
+    <string name="profile">Профиль</string>
+    <string name="content_loading">Идёт загрузка контента</string>
 </resources>

@@ -4,6 +4,7 @@ import android.content.Context
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import db.CopyCloseDB
+import dev.farukh.copyclose.MainViewModel
 import dev.farukh.copyclose.core.data.repos.AuthRepository
 import dev.farukh.copyclose.core.data.repos.MediaRepository
 import dev.farukh.copyclose.core.data.repos.UserRepository
@@ -24,7 +25,15 @@ internal fun coreDI(appDI: DI) = DI {
 
     bindProvider<SqlDriver> { AndroidSqliteDriver(CopyCloseDB.Schema, instance(), "db") }
 
-    bindSingleton<CopyCloseDB> { CopyCloseDB(instance()) }
+    bindSingleton<CopyCloseDB> {
+        CopyCloseDB(instance()).also {
+//            CopyCloseDB.Schema.migrate(
+//                driver = instance(),
+//                oldVersion = 1,
+//                newVersion = CopyCloseDB.Schema.version
+//            )
+        }
+    }
 
     bindProvider { UserLocalDataSource(instance()) }
 
@@ -41,4 +50,7 @@ internal fun coreDI(appDI: DI) = DI {
     bindProvider { RegisterUseCase(instance(), instance(), instance()) }
 
     bindProvider { LoginUseCase(instance(), instance()) }
+
+    //ViewModels
+    bindProvider { MainViewModel( instance() ) }
 }

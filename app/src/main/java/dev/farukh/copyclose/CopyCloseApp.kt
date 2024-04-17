@@ -14,10 +14,7 @@ class CopyCloseApp : Application(), DIAware {
         super.onCreate()
     }
 
-    private val appDI = DI {
-        bindProvider { applicationContext }
-        bindProvider { MainViewModel() }
-    }
+    private val appDI = DI { bindProvider { applicationContext } }
 
     override val di = coreDI(appDI)
 

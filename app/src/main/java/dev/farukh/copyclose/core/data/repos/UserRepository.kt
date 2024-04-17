@@ -16,6 +16,7 @@ class UserRepository(
     private val localDataSource: UserLocalDataSource,
     private val remoteDataSource: UserRemoteDataSource
 ) {
+    val activeUser = localDataSource.activeUser
     suspend fun createUser(
         role: RoleCore,
         user: UserDTO,
@@ -61,6 +62,10 @@ class UserRepository(
                 Result.Success(info.userID)
             }
         }
+    }
+
+    suspend fun makeUserActive(userID: String) {
+        localDataSource.makeUserActive(userID = userID)
     }
 }
 
