@@ -5,8 +5,8 @@ import dev.farukh.copyclose.core.ResourceError
 import dev.farukh.copyclose.core.data.dto.UserDTO
 import dev.farukh.copyclose.core.data.source.UserLocalDataSource
 import dev.farukh.copyclose.core.data.source.UserRemoteDataSource
-import dev.farukh.copyclose.utils.Result
-import dev.farukh.copyclose.utils.extensions.asNetworkError
+import dev.farukh.copyclose.core.utils.Result
+import dev.farukh.copyclose.core.utils.extensions.asNetworkError
 import dev.farukh.network.core.AddressCore
 import dev.farukh.network.core.RoleCore
 import dev.farukh.network.services.copyClose.info.response.UserInfoResponse

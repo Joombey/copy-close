@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.utils.extensions
+package dev.farukh.copyclose.core.utils.extensions
 
 val Boolean.long get() = run {
     if (this) {

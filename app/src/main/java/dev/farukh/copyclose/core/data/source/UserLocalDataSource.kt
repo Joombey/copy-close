@@ -4,7 +4,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import db.CopyCloseDB
 import dev.farukh.copyclose.core.data.dto.UserDTO
-import dev.farukh.copyclose.utils.extensions.long
+import dev.farukh.copyclose.core.utils.extensions.long
 import dev.farukh.network.core.AddressCore
 import dev.farukh.network.core.RoleCore
 import kotlinx.coroutines.Dispatchers

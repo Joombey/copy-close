@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.utils
+package dev.farukh.copyclose.core.utils
 
 import android.content.ContentResolver
 import android.content.ContentValues

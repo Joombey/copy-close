@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.utils.extensions
+package dev.farukh.copyclose.core.utils.extensions
 
 import android.content.Context
 import android.widget.Toast

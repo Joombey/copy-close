@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.utils
+package dev.farukh.copyclose.core.utils
 
 sealed class Result<out S, out E> {
     class Success<S>(val data: S): Result<S, Nothing>()

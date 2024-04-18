@@ -2,10 +2,10 @@ package dev.farukh.copyclose.features.map.data.source
 
 import dev.farukh.copyclose.core.AuthError
 import dev.farukh.copyclose.core.NetworkError
+import dev.farukh.copyclose.core.utils.Result
+import dev.farukh.copyclose.core.utils.extensions.asNetworkError
+import dev.farukh.copyclose.core.utils.extensions.asUnknownError
 import dev.farukh.copyclose.features.map.data.dto.SellerDTO
-import dev.farukh.copyclose.utils.Result
-import dev.farukh.copyclose.utils.extensions.asNetworkError
-import dev.farukh.copyclose.utils.extensions.asUnknownError
 import dev.farukh.network.services.copyClose.file.FileService
 import dev.farukh.network.services.copyClose.map.MapService
 import dev.farukh.network.services.copyClose.map.response.SellerInfoResponse
@@ -18,7 +18,7 @@ class RemoteSellersDataSource(
     suspend fun getSellers(
         userID: String,
         authToken: String
-    ): Result<List<Pair<SellerDTO, ByteArray?>>, NetworkError> {
+    ): Result<List<SellerDTO>, NetworkError> {
         return when (val sellerResult = mapService.getSellers(userID, authToken)) {
             is RequestResult.ClientError -> sellerResult.asNetworkError()
             is RequestResult.HostError -> sellerResult.asNetworkError()
@@ -31,9 +31,13 @@ class RemoteSellersDataSource(
                     .map { sellerInfo ->
                         val sellerImage = fileService.getImage(sellerInfo.imageID)
                         if (sellerImage is RequestResult.Success)
-                            sellerInfo.toDto() to sellerImage.data
+                            sellerInfo.toDto().copy(
+                                imageRaw = sellerImage.data
+                            )
                         else
-                            sellerInfo.toDto() to null
+                            sellerInfo.toDto().copy(
+                                imageRaw = null
+                            )
                     }
             )
         }

@@ -26,11 +26,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 import dev.farukh.copyclose.R
+import dev.farukh.copyclose.core.utils.UiUtils
+import dev.farukh.copyclose.core.utils.map.DrawUtils
 import dev.farukh.copyclose.features.register.data.model.Address
 import dev.farukh.copyclose.features.register.ui.QueryUIState
 import dev.farukh.copyclose.features.register.ui.map.AddressMarker
-import dev.farukh.copyclose.utils.UiUtils
-import dev.farukh.copyclose.utils.map.DrawUtils
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -30,11 +30,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import dev.farukh.copyclose.core.Screen
+import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.copyclose.features.auth.ui.compose.AuthScreen
 import dev.farukh.copyclose.features.map.ui.compose.MapScreen
 import dev.farukh.copyclose.features.profile.ui.compose.ProfileScreen
 import dev.farukh.copyclose.features.register.ui.compose.RegisterScreen
-import dev.farukh.copyclose.utils.UiUtils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberViewModel

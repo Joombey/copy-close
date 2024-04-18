@@ -2,10 +2,10 @@ package dev.farukh.copyclose.core.data.source
 
 import dev.farukh.copyclose.core.NetworkError
 import dev.farukh.copyclose.core.ResourceError
-import dev.farukh.copyclose.utils.MediaInserter
-import dev.farukh.copyclose.utils.Result
-import dev.farukh.copyclose.utils.extensions.asNetworkError
-import dev.farukh.copyclose.utils.extensions.asUnknownError
+import dev.farukh.copyclose.core.utils.MediaInserter
+import dev.farukh.copyclose.core.utils.Result
+import dev.farukh.copyclose.core.utils.extensions.asNetworkError
+import dev.farukh.copyclose.core.utils.extensions.asUnknownError
 import dev.farukh.network.services.copyClose.file.FileService
 import dev.farukh.network.services.copyClose.info.InfoService
 import dev.farukh.network.utils.RequestResult

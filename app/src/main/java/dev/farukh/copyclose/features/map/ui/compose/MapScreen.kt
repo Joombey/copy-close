@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import dev.farukh.copyclose.features.map.mapDI
 import dev.farukh.copyclose.features.map.ui.MapViewModel
+import dev.farukh.copyclose.features.map.ui.model.SellerUI
 import dev.farukh.copyclose.features.register.ui.compose.ZoomButtons
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -35,14 +36,12 @@ fun MapScreen(
 ) = withDI(di = mapDI(localDI())) {
     val viewModel: MapViewModel by rememberViewModel()
 
-    var zoomInTrigger: Boolean? by remember { mutableStateOf(true) }
-    var zoomOutTrigger: Boolean? by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-
-    }
+    var zoomInTrigger: Boolean? by remember { mutableStateOf(null) }
+    var zoomOutTrigger: Boolean? by remember { mutableStateOf(null) }
 
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) { viewModel.getSellers() }
 
     Box(modifier = modifier) {
         AndroidView(
@@ -50,14 +49,25 @@ fun MapScreen(
                 MapView(context).apply {
                     setTileSource(TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
-                    controller.setZoom(7.0)
+
+                    controller.setZoom(viewModel.mapUIState.zoomLevel)
+                    controller.setCenter(viewModel.mapUIState.mapCenter)
+
                     minZoomLevel = 4.0
                     maxZoomLevel = 16.0
                     zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
 
                     setZoomInTrigger(snapshotFlow { zoomInTrigger }, scope)
                     setZoomOutTrigger(snapshotFlow { zoomOutTrigger }, scope)
+                    collectSellers(viewModel.sellersFlow, scope) { seller ->
+                        viewModel.setSellerLocation(seller)
+                    }
                 }
+            },
+
+            onRelease = {
+                viewModel.setCenter(it.mapCenter)
+                viewModel.setZoom(it.zoomLevelDouble)
             },
             modifier = Modifier.matchParentSize()
         )
@@ -70,6 +80,27 @@ fun MapScreen(
                 .padding(16.dp)
         )
     }
+}
+
+private fun MapView.collectSellers(
+    sellersFlow: Flow<List<SellerUI>>,
+    scope: CoroutineScope,
+    onLongClick: (SellerUI) -> Unit,
+) {
+    sellersFlow.onEach { sellers ->
+        removeAllViews()
+        sellers.forEach { seller ->
+            addView(
+                markerView(
+                    sellerUI = seller,
+                    context = context,
+                    onLongClick = {
+
+                    }
+                )
+            )
+        }
+    }.launchIn(scope)
 }
 
 private fun MapView.setZoomInTrigger(zoomInTrigger: Flow<Boolean?>, scope: CoroutineScope) {

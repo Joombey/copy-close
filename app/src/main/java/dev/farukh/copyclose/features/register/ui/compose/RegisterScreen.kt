@@ -16,9 +16,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import dev.farukh.copyclose.R
+import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.copyclose.features.register.registerDI
 import dev.farukh.copyclose.features.register.ui.RegisterViewModel
-import dev.farukh.copyclose.utils.UiUtils
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.rememberViewModel
 import org.kodein.di.compose.withDI

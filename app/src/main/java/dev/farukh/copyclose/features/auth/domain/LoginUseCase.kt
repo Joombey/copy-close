@@ -3,7 +3,7 @@ package dev.farukh.copyclose.features.auth.domain
 import dev.farukh.copyclose.core.NetworkError
 import dev.farukh.copyclose.core.data.repos.AuthRepository
 import dev.farukh.copyclose.core.data.repos.UserRepository
-import dev.farukh.copyclose.utils.Result
+import dev.farukh.copyclose.core.utils.Result
 
 class LoginUseCase(
     private val userRepository: UserRepository,

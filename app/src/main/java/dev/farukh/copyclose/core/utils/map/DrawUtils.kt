@@ -1,7 +1,6 @@
-package dev.farukh.copyclose.utils.map
+package dev.farukh.copyclose.core.utils.map
 
 import android.content.res.Resources
-import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import androidx.core.graphics.drawable.toBitmap
 import kotlinx.coroutines.Dispatchers

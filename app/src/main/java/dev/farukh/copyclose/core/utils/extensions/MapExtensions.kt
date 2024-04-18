@@ -1,7 +1,7 @@
-package dev.farukh.copyclose.utils.extensions
+package dev.farukh.copyclose.core.utils.extensions
 
 import dev.farukh.copyclose.core.NetworkError
-import dev.farukh.copyclose.utils.Result
+import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.network.utils.RequestResult
 
 fun RequestResult.ServerError.asNetworkError(): Result.Error<NetworkError> {

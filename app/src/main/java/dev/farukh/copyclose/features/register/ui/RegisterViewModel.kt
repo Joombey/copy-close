@@ -9,12 +9,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.copyclose.features.register.data.dto.RegisterDTO
 import dev.farukh.copyclose.features.register.data.model.Address
 import dev.farukh.copyclose.features.register.data.repos.GeoRepository
 import dev.farukh.copyclose.features.register.data.repos.MediaRepository
 import dev.farukh.copyclose.features.register.domain.RegisterUseCase
-import dev.farukh.copyclose.utils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

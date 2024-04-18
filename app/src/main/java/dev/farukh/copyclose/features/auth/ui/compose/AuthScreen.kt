@@ -12,11 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import dev.farukh.copyclose.R
+import dev.farukh.copyclose.core.utils.UiUtils
+import dev.farukh.copyclose.core.utils.extensions.toast
 import dev.farukh.copyclose.features.auth.authDI
 import dev.farukh.copyclose.features.auth.ui.AuthErrors
 import dev.farukh.copyclose.features.auth.ui.AuthViewModel
-import dev.farukh.copyclose.utils.UiUtils
-import dev.farukh.copyclose.utils.extensions.toast
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.rememberViewModel
 import org.kodein.di.compose.withDI

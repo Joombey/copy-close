@@ -8,8 +8,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.copyclose.features.register.data.model.Address
-import dev.farukh.copyclose.utils.UiUtils
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable

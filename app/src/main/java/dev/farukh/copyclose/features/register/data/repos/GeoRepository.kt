@@ -2,9 +2,9 @@ package dev.farukh.copyclose.features.register.data.repos
 
 import dev.farukh.copyclose.core.AuthError
 import dev.farukh.copyclose.core.NetworkError
+import dev.farukh.copyclose.core.utils.Result
+import dev.farukh.copyclose.core.utils.extensions.asNetworkError
 import dev.farukh.copyclose.features.register.data.model.Address
-import dev.farukh.copyclose.utils.Result
-import dev.farukh.copyclose.utils.extensions.asNetworkError
 import dev.farukh.network.services.yandex.geoCoder.YandexGeoCoderService
 import dev.farukh.network.services.yandex.geoCoder.response.FeatureMember
 import dev.farukh.network.services.yandex.geoCoder.response.GeoCoderResponse
