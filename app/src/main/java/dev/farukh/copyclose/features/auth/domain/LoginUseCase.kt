@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.core.domain
+package dev.farukh.copyclose.features.auth.domain
 
 import dev.farukh.copyclose.core.NetworkError
 import dev.farukh.copyclose.core.data.repos.AuthRepository

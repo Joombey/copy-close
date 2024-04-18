@@ -2,7 +2,6 @@ package dev.farukh.copyclose.core.data.dto
 
 class UserDTO(
     val id: String,
-    val login: String,
     val roleID: Int,
     val addressID: String,
     val name: String,

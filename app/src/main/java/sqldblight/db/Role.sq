@@ -9,6 +9,9 @@ createRole:
 INSERT OR REPLACE INTO roleEntity(id, canBuy, canSell, canBan)
 VALUES (?, ?, ? ,?);
 
+updateRole:
+UPDATE roleEntity SET canBuy = ?, canSell = ?, canBan = ? WHERE id = ?;
+
 getRoleByID:
 SELECT * FROM roleEntity
 WHERE id = ?;

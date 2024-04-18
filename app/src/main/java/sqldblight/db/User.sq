@@ -1,7 +1,6 @@
 CREATE TABLE IF NOT EXISTS userEntity (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    login TEXT NOT NULL,
     icon TEXT NOT NULL,
     iconID TEXT NOT NULL,
     roleID INTEGER NOT NULL,
@@ -14,30 +13,27 @@ CREATE TABLE IF NOT EXISTS userEntity (
 );
 
 activeUser:
-SELECT id FROM userEntity WHERE isCurrent = 1;
+SELECT * FROM userEntity WHERE isCurrent = 1;
 
 makeUserActive:
 UPDATE userEntity SET isCurrent = 1 WHERE id = ?;
+
+makeUserInActive:
+UPDATE userEntity SET isCurrent = 0 WHERE id = ?;
 
 makeOtherInActive:
 UPDATE userEntity SET isCurrent = 0 WHERE id != ?;
 
 createUser:
-INSERT OR REPLACE INTO userEntity (id, name, login, icon, iconID, roleID, addressID, authToken)
-VALUES (?, ?, ? ,?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO userEntity (id, name, icon, iconID, roleID, addressID, authToken)
+VALUES (?, ?, ? ,?, ?, ?, ?);
+
+updateUser:
+UPDATE userEntity SET name = ?, icon = ?, iconID = ?, roleID = ?, addressID = ?, authToken = ?
+WHERE id = ?;
 
 getIconByID:
 SELECT iconID FROM userEntity WHERE id = ?;
 
 userExists:
 SELECT EXISTS (SELECT * FROM userEntity WHERE id = ?);
-
--- getUserByID:
--- SELECT * FROM userEntity
--- WHERE id = ?;
---
--- user:
--- SELECT name, icon, canBan, canBuy, canSell, addressName, lat, lon FROM userEntity
--- INNER JOIN address ON userEntity.addressID = address.id
--- INNER JOIN role ON userEntity.roleID = role.id
--- WHERE userEntity.id = ?;

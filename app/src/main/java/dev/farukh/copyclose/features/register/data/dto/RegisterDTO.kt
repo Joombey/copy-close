@@ -1,7 +1,7 @@
-package dev.farukh.copyclose.core.data.dto
+package dev.farukh.copyclose.features.register.data.dto
 
 import android.net.Uri
-import dev.farukh.copyclose.core.data.model.Address
+import dev.farukh.copyclose.features.register.data.model.Address
 
 class RegisterDTO(
     val login: String,

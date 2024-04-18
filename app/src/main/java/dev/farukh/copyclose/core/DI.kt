@@ -6,12 +6,9 @@ import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import db.CopyCloseDB
 import dev.farukh.copyclose.MainViewModel
 import dev.farukh.copyclose.core.data.repos.AuthRepository
-import dev.farukh.copyclose.core.data.repos.MediaRepository
 import dev.farukh.copyclose.core.data.repos.UserRepository
 import dev.farukh.copyclose.core.data.source.UserLocalDataSource
 import dev.farukh.copyclose.core.data.source.UserRemoteDataSource
-import dev.farukh.copyclose.core.domain.LoginUseCase
-import dev.farukh.copyclose.core.domain.RegisterUseCase
 import dev.farukh.copyclose.utils.MediaInserter
 import dev.farukh.network.networkDI
 import org.kodein.di.DI
@@ -25,15 +22,7 @@ internal fun coreDI(appDI: DI) = DI {
 
     bindProvider<SqlDriver> { AndroidSqliteDriver(CopyCloseDB.Schema, instance(), "db") }
 
-    bindSingleton<CopyCloseDB> {
-        CopyCloseDB(instance()).also {
-//            CopyCloseDB.Schema.migrate(
-//                driver = instance(),
-//                oldVersion = 1,
-//                newVersion = CopyCloseDB.Schema.version
-//            )
-        }
-    }
+    bindSingleton<CopyCloseDB> { CopyCloseDB(instance()) }
 
     bindProvider { UserLocalDataSource(instance()) }
 
@@ -43,13 +32,7 @@ internal fun coreDI(appDI: DI) = DI {
 
     bindProvider { UserRepository(instance(), instance()) }
 
-    bindProvider { MediaRepository(instance()) }
-
     bindProvider { AuthRepository(instance()) }
-
-    bindProvider { RegisterUseCase(instance(), instance(), instance()) }
-
-    bindProvider { LoginUseCase(instance(), instance()) }
 
     //ViewModels
     bindProvider { MainViewModel( instance() ) }

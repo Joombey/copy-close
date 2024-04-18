@@ -20,3 +20,7 @@ sealed interface AuthError: ClientError {
 sealed interface ResourceError: ClientError {
     data object NotFoundError: ResourceError
 }
+
+sealed interface LocalError: AppError {
+    data object NoActiveUser: LocalError
+}

@@ -9,6 +9,9 @@ createAddress:
 INSERT OR REPLACE INTO addressEntity(id, addressName, lat, lon)
 VALUES (?, ?, ?, ?);
 
+updateAddress:
+UPDATE addressEntity SET addressName = ?, lat = ?, lon = ? WHERE id = ?;
+
 addressExists:
 SELECT EXISTS(
     SELECT * FROM addressEntity WHERE id = ?

@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.core.data.repos
+package dev.farukh.copyclose.features.register.data.repos
 
 import android.content.Context
 import android.graphics.BitmapFactory

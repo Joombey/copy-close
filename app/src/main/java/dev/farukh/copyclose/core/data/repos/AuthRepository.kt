@@ -2,7 +2,7 @@ package dev.farukh.copyclose.core.data.repos
 
 import dev.farukh.copyclose.core.AuthError
 import dev.farukh.copyclose.core.NetworkError
-import dev.farukh.copyclose.core.data.model.Address
+import dev.farukh.copyclose.features.register.data.model.Address
 import dev.farukh.copyclose.utils.Result
 import dev.farukh.copyclose.utils.extensions.asNetworkError
 import dev.farukh.network.core.AddressCore

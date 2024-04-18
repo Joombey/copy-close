@@ -9,11 +9,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.farukh.copyclose.core.data.dto.RegisterDTO
-import dev.farukh.copyclose.core.data.model.Address
-import dev.farukh.copyclose.core.data.repos.MediaRepository
-import dev.farukh.copyclose.core.domain.RegisterUseCase
-import dev.farukh.copyclose.features.register.data.repo.GeoRepository
+import dev.farukh.copyclose.features.register.data.dto.RegisterDTO
+import dev.farukh.copyclose.features.register.data.model.Address
+import dev.farukh.copyclose.features.register.data.repos.GeoRepository
+import dev.farukh.copyclose.features.register.data.repos.MediaRepository
+import dev.farukh.copyclose.features.register.domain.RegisterUseCase
 import dev.farukh.copyclose.utils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,25 +26,24 @@ class RegisterViewModel(
     private val _uiState = RegisterScreenUIStateMutable()
     val uiState: RegisterScreenUIState = _uiState
 
-    fun query() {
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val result = geoRepository.query(uiState.queryUIState.query)) {
-                is Result.Error -> {
-                    _uiState._queryUIState.queryError = QueryErr.NoSuchAddress
-                }
-                is Result.Success -> {
-                    _uiState._queryUIState._addressList.clear()
-                    _uiState._queryUIState._addressList.addAll(result.data)
+    fun query() = viewModelScope.launch(Dispatchers.IO) {
+        when (val result = geoRepository.query(uiState.queryUIState.query)) {
+            is Result.Error -> {
+                _uiState._queryUIState.queryError = QueryErr.NoSuchAddress
+            }
 
-                    if (result.data.isEmpty()) {
-                        _uiState._queryUIState.queryError = QueryErr.NoSuchAddress
-                    } else if (_uiState._queryUIState.queryError != null) {
-                        _uiState._queryUIState.queryError = null
-                    }
+            is Result.Success -> {
+                _uiState._queryUIState._addressList.clear()
+                _uiState._queryUIState._addressList.addAll(result.data)
+
+                if (result.data.isEmpty()) {
+                    _uiState._queryUIState.queryError = QueryErr.NoSuchAddress
+                } else if (_uiState._queryUIState.queryError != null) {
+                    _uiState._queryUIState.queryError = null
                 }
             }
-            _uiState._queryUIState.addressListShown = true
         }
+        _uiState._queryUIState.addressListShown = true
     }
 
     fun setLogin(value: String) {
@@ -71,31 +70,33 @@ class RegisterViewModel(
         _uiState.name = value
     }
 
-    fun register() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val registerDTO = RegisterDTO(
-                login = uiState.login,
-                password = uiState.password,
-                name = uiState.name,
-                address = uiState.queryUIState.chosenAddress ?: return@launch,
-                image = _uiState.userIconUri ?: return@launch,
-                isSeller = false,
-            )
-            when (val result = registerUseCase(registerDTO)) {
-                is Result.Error -> { _uiState.networkErr = NetworkErr.ClientErr }
-                is Result.Success -> {
-                    _uiState.registered = result.data
-                    _uiState.userExistsErr = !result.data
+    fun register() = viewModelScope.launch(Dispatchers.IO) {
+        val registerDTO = RegisterDTO(
+            login = uiState.login,
+            password = uiState.password,
+            name = uiState.name,
+            address = uiState.queryUIState.chosenAddress ?: return@launch,
+            image = _uiState.userIconUri ?: return@launch,
+            isSeller = uiState.isSeller,
+        )
+        when (val result = registerUseCase(registerDTO)) {
+            is Result.Error -> {
+                _uiState.networkErr = NetworkErr.ClientErr
+            }
 
-                    if (uiState.registered) {
-                        _uiState.passwordConfirmErr = false
-                        _uiState._queryUIState.queryError = null
-                        _uiState.networkErr = null
-                    }
+            is Result.Success -> {
+                _uiState.registered = result.data
+                _uiState.userExistsErr = !result.data
+
+                if (uiState.registered) {
+                    _uiState.passwordConfirmErr = false
+                    _uiState._queryUIState.queryError = null
+                    _uiState.networkErr = null
                 }
             }
         }
     }
+
 
     fun chooseAddress(address: Address) {
         _uiState._queryUIState.chosenAddress = address
@@ -103,16 +104,15 @@ class RegisterViewModel(
         _uiState._queryUIState.addressListShown = false
     }
 
-    fun chooseIcon(uri: Uri) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _uiState.userIcon = mediaRepository.getImage(uri)
-            if (uiState.userIcon != null) {
-                _uiState.userIconUri = uri
-            } else {
-                _uiState.userIconUri = null
-            }
+    fun chooseIcon(uri: Uri) = viewModelScope.launch(Dispatchers.IO) {
+        _uiState.userIcon = mediaRepository.getImage(uri)
+        if (uiState.userIcon != null) {
+            _uiState.userIconUri = uri
+        } else {
+            _uiState.userIconUri = null
         }
     }
+
 
     fun sellerChange(b: Boolean) {
         _uiState.isSeller = b
@@ -138,7 +138,7 @@ private class RegisterScreenUIStateMutable : RegisterScreenUIState {
     override var networkErr: NetworkErr? by mutableStateOf(null)
 }
 
-private class QueryUIStateMutable: QueryUIState {
+private class QueryUIStateMutable : QueryUIState {
     val _addressList = mutableStateListOf<Address>()
     override val addressList: List<Address> = _addressList
 

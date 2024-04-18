@@ -50,13 +50,12 @@ class UserRepository(
                     address = info.address,
                     user = UserDTO(
                         id = info.userID,
-                        login = info.login,
                         roleID = info.role.id,
                         addressID = info.address.id!!,
                         name = info.name,
                         authToken = info.authToken,
                         icon = uriResult.data,
-                        iconUrl = info.imageID
+                        iconUrl = info.imageID,
                     )
                 )
                 Result.Success(info.userID)
@@ -66,6 +65,10 @@ class UserRepository(
 
     suspend fun makeUserActive(userID: String) {
         localDataSource.makeUserActive(userID = userID)
+    }
+
+    suspend fun makeUserInActive(userID: String) {
+        localDataSource.makeUserInActive(userID)
     }
 }
 

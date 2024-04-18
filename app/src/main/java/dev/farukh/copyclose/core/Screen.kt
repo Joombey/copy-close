@@ -15,31 +15,31 @@ sealed interface Screen {
     val args: List<NamedNavArgument> get() = emptyList()
     val navIcon: ImageVector? get() = null
 
-    data object Splash: Screen {
+    data object Splash : Screen {
         override val route: String = "splash"
     }
 
-    data object AuthGraph: Screen {
+    data object AuthGraph : Screen {
         override val route get() = "auth"
 
-        data object Auth: Screen {
+        data object Auth : Screen {
             override val route: String = "${AuthGraph.route}/login"
         }
 
-        data object Register: Screen {
+        data object Register : Screen {
             override val route: String = "${AuthGraph.route}/register"
         }
     }
-    class Map: Screen by Companion {
-        companion object: Screen {
-            override val route: String = "map"
-            override val navIcon: ImageVector = Icons.Filled.Map
-        }
+
+    data object Map : Screen {
+        override val route: String = "map"
+        override val navIcon: ImageVector = Icons.Filled.Map
     }
 
-    class Profile(userID: String): Screen by Companion {
+    class Profile(userID: String) : Screen by Companion {
         override val route: String = "profile/$userID"
-        companion object: Screen {
+
+        companion object : Screen {
             override val route: String = "profile/{userID}"
             override val args: List<NamedNavArgument> = listOf(
                 navArgument("userID") { type = NavType.StringType }
@@ -48,9 +48,10 @@ sealed interface Screen {
         }
     }
 
-    class Orders(userID: String): Screen by Companion {
+    class Orders(userID: String) : Screen by Companion {
         override val route: String = "orders/$userID"
-        companion object: Screen {
+
+        companion object : Screen {
             override val route: String = "orders/{userID}"
             override val args: List<NamedNavArgument> = listOf(
                 navArgument("userID") { type = NavType.StringType }

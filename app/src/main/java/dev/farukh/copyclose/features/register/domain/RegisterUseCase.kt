@@ -1,10 +1,10 @@
-package dev.farukh.copyclose.core.domain
+package dev.farukh.copyclose.features.register.domain
 
-import dev.farukh.copyclose.core.data.dto.RegisterDTO
 import dev.farukh.copyclose.core.data.dto.UserDTO
 import dev.farukh.copyclose.core.data.repos.AuthRepository
-import dev.farukh.copyclose.core.data.repos.MediaRepository
 import dev.farukh.copyclose.core.data.repos.UserRepository
+import dev.farukh.copyclose.features.register.data.dto.RegisterDTO
+import dev.farukh.copyclose.features.register.data.repos.MediaRepository
 import dev.farukh.copyclose.utils.Result
 import dev.farukh.network.core.AddressCore
 import dev.farukh.network.services.copyClose.auth.response.RegisterResponse
@@ -48,7 +48,6 @@ class RegisterUseCase(
             iconUrl = response.imageID,
             name = registerDTO.name,
             icon = registerDTO.image.toString(),
-            login = registerDTO.login,
         )
 
         val addressCore = AddressCore(

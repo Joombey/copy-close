@@ -1,4 +1,4 @@
-package dev.farukh.network.services.copyClose.info
+package dev.farukh.network.services.copyClose.map
 
 import android.util.Log
 import dev.farukh.network.BuildConfig
@@ -17,8 +17,8 @@ import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
-internal val infoServiceDI by DI.Module {
-    bindProvider(Tags.COPY_CLOSE_INFO) {
+internal val mapModule by DI.Module {
+    bindProvider(Tags.COPY_CLOSE_MAP) {
         Json {
             encodeDefaults = true
             isLenient = true
@@ -28,10 +28,10 @@ internal val infoServiceDI by DI.Module {
         }
     }
 
-    bindProvider(Tags.COPY_CLOSE_INFO) {
+    bindProvider(Tags.COPY_CLOSE_MAP) {
         HttpClient(OkHttp) {
             install(ContentNegotiation) {
-                json(instance(Tags.COPY_CLOSE_INFO))
+                json(instance(Tags.COPY_CLOSE_MAP))
             }
             Logging {
                 logger = object : Logger {
@@ -41,11 +41,11 @@ internal val infoServiceDI by DI.Module {
                 }
                 level = LogLevel.ALL
             }
-            defaultRequest { url("${BuildConfig.CopyCloseURL}/info/") }
+            defaultRequest { url("${BuildConfig.CopyCloseURL}/map/") }
         }
     }
 
-    bindProvider<InfoService> {
-        InfoServiceImpl(instance(Tags.COPY_CLOSE_INFO), instance(Tags.COPY_CLOSE_INFO))
+    bindProvider<MapService> {
+        MapServiceImpl(instance(Tags.COPY_CLOSE_MAP))
     }
 }

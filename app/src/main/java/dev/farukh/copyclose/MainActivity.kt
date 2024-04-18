@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -25,13 +26,17 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import dev.farukh.copyclose.core.Screen
 import dev.farukh.copyclose.features.auth.ui.compose.AuthScreen
-import dev.farukh.copyclose.features.map.compose.MapScreen
+import dev.farukh.copyclose.features.map.ui.compose.MapScreen
+import dev.farukh.copyclose.features.profile.ui.compose.ProfileScreen
 import dev.farukh.copyclose.features.register.ui.compose.RegisterScreen
 import dev.farukh.copyclose.utils.UiUtils
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberViewModel
 import org.kodein.di.compose.withDI
 
@@ -52,54 +57,68 @@ class MainActivity : ComponentActivity() {
 fun App() {
     val navController = rememberNavController()
     val viewModel: MainViewModel by rememberViewModel()
-
-    val currentScreen by viewModel.currentScreen.collectAsStateWithLifecycle()
     val activeUserID by viewModel.activeUser.collectAsStateWithLifecycle(initialValue = null)
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        viewModel.currentScreen.collect { nextScreen ->
-            navController.navigateWithOptionsTo(nextScreen.route)
-        }
-    }
+    LaunchAuthCheck(
+        navController = navController,
+        source = viewModel.activeUser
+    )
 
     Scaffold(
         bottomBar = {
             activeUserID?.let {
                 MapBottomNav(
-                    selectedScreen = currentScreen,
-                    onMap = { viewModel::toMap },
-                    onOrders = { viewModel.toOrders(it) },
-                    onProfile = { viewModel.toProfile(it) }
+                    selectedScreen = Screen.Splash,
+                    onMap = { navController.navigateWithOptionsTo(Screen.Map.route) },
+                    onOrders = { navController.navigateWithOptionsTo(Screen.Orders(it).route) },
+                    onProfile = { navController.navigateWithOptionsTo(Screen.Profile(it).route) }
                 )
             }
         }
-    ) {
+    ) { scaffoldPadding ->
         NavHost(
             navController = navController,
             startDestination = Screen.Splash.route,
             modifier = Modifier
-                .padding(it)
+                .padding(scaffoldPadding)
                 .fillMaxSize()
         ) {
             authGraph(
-                onLoginSuccess = viewModel::makeUserActive,
-                onRegisterPress = viewModel::toRegister,
-                onRegisterSuccess = viewModel::toAuth,
+                onLoginSuccess = { userID ->
+                    scope.launch {
+                        viewModel.makeUserActive(userID).join()
+                        navController.navigateWithOptionsTo(Screen.Map.route)
+                    }
+                },
+                onRegisterPress = { navController.navigateWithOptionsTo(Screen.AuthGraph.Register.route) },
+                onRegisterSuccess = { navController.navigateWithOptionsTo(Screen.AuthGraph.Auth.route) },
             )
             composable(
                 route = Screen.Map.route,
                 arguments = Screen.Map.args,
-            ) { navBackStackEntry ->
-                val userArg = navBackStackEntry.arguments!!.getString("userID")!!
-                MapScreen()
+            ) { MapScreen() }
+
+            composable(
+                route = Screen.Orders.route,
+                arguments = Screen.Orders.args
+            ) { AppSplash() }
+
+            composable(
+                route = Screen.Profile.route,
+                arguments = Screen.Profile.args
+            ) { navBackStack ->
+                ProfileScreen(
+                    isMe = navBackStack.arguments!!.getString("userID") == activeUserID,
+                    onLogOut = { viewModel.logOut(activeUserID!!) },
+                    modifier = Modifier.fillMaxSize()
+                )
             }
 
             composable(
                 route = Screen.Splash.route,
                 arguments = Screen.Splash.args
-            ) {
-                AppSplash()
-            }
+            ) { AppSplash() }
         }
     }
 }
@@ -177,6 +196,23 @@ fun MapBottomNav(
             icon = { Icon(Screen.Profile.navIcon, null) },
             label = { Text(stringResource(id = R.string.profile)) }
         )
+    }
+}
+
+@Composable
+fun LaunchAuthCheck(
+    navController: NavController,
+    source: Flow<String?>
+) {
+    val navBackStack by navController.currentBackStackEntryAsState()
+    LaunchedEffect(Unit) {
+        source.collect { userID ->
+            if (userID == null && navBackStack?.destination?.route?.contains(Screen.AuthGraph.route) == false) {
+                navController.navigateWithOptionsTo(Screen.AuthGraph.Auth.route)
+            } else if (userID != null) {
+                navController.navigateWithOptionsTo(Screen.Map.route)
+            }
+        }
     }
 }
 
