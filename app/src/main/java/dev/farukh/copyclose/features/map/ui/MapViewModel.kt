@@ -2,10 +2,10 @@ package dev.farukh.copyclose.features.map.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.farukh.copyclose.core.data.repos.UserRepository
 import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.copyclose.features.map.data.dto.SellerDTO
-import dev.farukh.copyclose.features.map.data.repos.SellerRepository
 import dev.farukh.copyclose.features.map.ui.model.SellerUI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +16,7 @@ import org.osmdroid.api.IGeoPoint
 import org.osmdroid.util.GeoPoint
 
 class MapViewModel(
-    private val sellerRepository: SellerRepository
+    private val userRepository: UserRepository
 ): ViewModel() {
     private val _sellersFlow = MutableStateFlow<List<SellerUI>>(emptyList())
     val sellersFlow = _sellersFlow.asStateFlow()
@@ -25,7 +25,7 @@ class MapViewModel(
     val mapUIState: MapUIState get() = _mapUIState
 
     fun getSellers() = viewModelScope.launch(Dispatchers.IO) {
-        when(val sellersResult = sellerRepository.getSellers()) {
+        when(val sellersResult = userRepository.getSellers()) {
             is Result.Error -> {}
             is Result.Success -> _sellersFlow.update { sellersResult.data.toUI() }
         }

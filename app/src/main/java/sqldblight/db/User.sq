@@ -32,6 +32,9 @@ updateUser:
 UPDATE userEntity SET name = ?, icon = ?, iconID = ?, roleID = ?, addressID = ?, authToken = ?
 WHERE id = ?;
 
+getUserByID:
+SELECT * FROM userEntity WHERE id = ?;
+
 getIconByID:
 SELECT iconID FROM userEntity WHERE id = ?;
 

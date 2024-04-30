@@ -13,9 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import dev.farukh.copyclose.core.utils.extensions.toast
 import dev.farukh.copyclose.features.map.ui.model.SellerUI
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
@@ -23,8 +21,9 @@ import org.osmdroid.views.MapView
 fun markerView(
     sellerUI: SellerUI,
     context: Context,
-    onLongClick: () -> Unit = {}
-) = ComposeView(context = context).apply {
+    onLongClick: () -> Unit = {},
+    onClick: () -> Unit = {},
+) = ComposeView(context).apply {
     layoutParams = MapView.LayoutParams(
         MapView.LayoutParams.WRAP_CONTENT,
         MapView.LayoutParams.WRAP_CONTENT,
@@ -35,7 +34,7 @@ fun markerView(
     )
 
     setContent {
-        MapUserImage(sellerUI = sellerUI, onLongClick = onLongClick)
+        MapUserImage(sellerUI = sellerUI, onLongClick = onLongClick, onClick = onClick)
     }
 }
 
@@ -44,13 +43,13 @@ fun markerView(
 private fun MapUserImage(
     sellerUI: SellerUI,
     onLongClick: () -> Unit,
+    onClick: () -> Unit,
 ) {
-    val context = LocalContext.current
     val userImageModifier = Modifier
         .clip(CircleShape)
         .size(30.dp)
         .combinedClickable(
-            onClick = { context.toast(sellerUI.name) },
+            onClick = onClick,
             onLongClick = onLongClick
         )
     if (sellerUI.image == null) {

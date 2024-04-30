@@ -23,7 +23,7 @@ class UserLocalDataSource(private val db: CopyCloseDB) {
         address: AddressCore,
     ) {
         withContext(Dispatchers.IO) {
-            if(!db.addressQueries.addressExists(address.id!!).executeAsOne()) {
+            if(db.addressQueries.addressExists(address.id!!).executeAsOne()) {
                 db.addressQueries.updateAddress(
                     id = address.id!!,
                     addressName = address.addressName,
@@ -38,7 +38,7 @@ class UserLocalDataSource(private val db: CopyCloseDB) {
                     lon = address.lon
                 )
             }
-            if (!db.roleQueries.roleExists(id = role.id.toLong()).executeAsOne()) {
+            if (db.roleQueries.roleExists(id = role.id.toLong()).executeAsOne()) {
                 db.roleQueries.updateRole(
                     id = role.id.toLong(),
                     canBuy = role.canBuy.long,
@@ -53,7 +53,7 @@ class UserLocalDataSource(private val db: CopyCloseDB) {
                     canSell = role.canSell.long
                 )
             }
-            if (!db.userQueries.userExists(user.id).executeAsOne()) {
+            if (db.userQueries.userExists(user.id).executeAsOne()) {
                 db.userQueries.updateUser(
                     id = user.id,
                     name = user.name,
@@ -74,7 +74,6 @@ class UserLocalDataSource(private val db: CopyCloseDB) {
                     iconID = user.iconUrl
                 )
             }
-
         }
     }
 
@@ -99,5 +98,17 @@ class UserLocalDataSource(private val db: CopyCloseDB) {
 
     suspend fun getActiveUser() = withContext(Dispatchers.IO) {
         db.userQueries.activeUser().executeAsOneOrNull()
+    }
+
+    suspend fun getUserByID(userID: String) = withContext(Dispatchers.IO) {
+        db.userQueries.getUserByID(userID).executeAsOneOrNull()
+    }
+
+    suspend fun getRole(roleID: Int) = withContext(Dispatchers.IO) {
+        db.roleQueries.getRoleByID(roleID.toLong()).executeAsOne()
+    }
+
+    suspend fun getRole(roleID: Long) = withContext(Dispatchers.IO) {
+        db.roleQueries.getRoleByID(roleID).executeAsOne()
     }
 }

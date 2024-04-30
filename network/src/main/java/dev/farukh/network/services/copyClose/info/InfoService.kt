@@ -10,6 +10,7 @@ import kotlinx.serialization.json.Json
 
 interface InfoService {
     suspend fun getUserInfo(login: String, authToken: String): RequestResult<UserInfoResponse>
+    suspend fun getUserInfoV2(infoUserID: String, login: String, authToken: String): RequestResult<UserInfoResponse>
 }
 
 internal class InfoServiceImpl(
@@ -22,6 +23,17 @@ internal class InfoServiceImpl(
             url {
                 url("user/$login")
                 parameters["authToken"] = authToken
+            }
+        }
+    )
+
+    override suspend fun getUserInfoV2(infoUserID: String, login: String, authToken: String) = client.commonGet(
+        onResponse = { body<UserInfoResponse>() },
+        config = {
+            url {
+                url("user/$infoUserID")
+                parameters["authToken"] = authToken
+                parameters["userID"] = login
             }
         }
     )

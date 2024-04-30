@@ -72,7 +72,15 @@ fun App() {
                     selectedScreen = Screen.Splash,
                     onMap = { navController.navigateWithOptionsTo(Screen.Map.route) },
                     onOrders = { navController.navigateWithOptionsTo(Screen.Orders(it).route) },
-                    onProfile = { navController.navigateWithOptionsTo(Screen.Profile(it).route) }
+                    onProfile = {
+                        val isProfile: Boolean = navController.currentDestination?.route?.contains("profile") == true
+                        val profileId: String = navController.currentBackStackEntry?.arguments?.getString("userID") ?: ""
+                        if (isProfile && profileId == it) {
+                            navController.navigateWithOptionsTo(Screen.Profile(it).route)
+                        } else {
+                            navController.navigateTo(Screen.Profile(it).route)
+                        }
+                    }
                 )
             }
         }
@@ -97,7 +105,13 @@ fun App() {
             composable(
                 route = Screen.Map.route,
                 arguments = Screen.Map.args,
-            ) { MapScreen() }
+            ) {
+                MapScreen(
+                    onSellerClick = { sellerID ->
+                        navController.navigateWithOptionsTo(Screen.Profile(sellerID).route)
+                    }
+                )
+            }
 
             composable(
                 route = Screen.Orders.route,
@@ -109,7 +123,7 @@ fun App() {
                 arguments = Screen.Profile.args
             ) { navBackStack ->
                 ProfileScreen(
-                    isMe = navBackStack.arguments!!.getString("userID") == activeUserID,
+                    userID = navBackStack.arguments!!.getString("userID")!!,
                     onLogOut = { viewModel.logOut(activeUserID!!) },
                     modifier = Modifier.fillMaxSize()
                 )
@@ -223,9 +237,8 @@ fun NavController.navigateWithOptionsTo(route: String) {
     }
 }
 
-fun NavController.navigateWithStateLoss(route: String) {
+fun NavController.navigateTo(route: String) {
     navigate(route) {
-        launchSingleTop = true
-        restoreState = false
+        restoreState = true
     }
 }

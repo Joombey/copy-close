@@ -32,7 +32,8 @@ import org.osmdroid.views.MapView
 
 @Composable
 fun MapScreen(
-    modifier: Modifier = Modifier
+    onSellerClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) = withDI(di = mapDI(localDI())) {
     val viewModel: MapViewModel by rememberViewModel()
 
@@ -59,9 +60,12 @@ fun MapScreen(
 
                     setZoomInTrigger(snapshotFlow { zoomInTrigger }, scope)
                     setZoomOutTrigger(snapshotFlow { zoomOutTrigger }, scope)
-                    collectSellers(viewModel.sellersFlow, scope) { seller ->
-                        viewModel.setSellerLocation(seller)
-                    }
+                    collectSellers(
+                        sellersFlow = viewModel.sellersFlow,
+                        scope = scope,
+                        onClick = { onSellerClick(it.id) },
+                        onLongClick = { viewModel.setSellerLocation(it) }
+                    )
                 }
             },
 
@@ -86,6 +90,7 @@ private fun MapView.collectSellers(
     sellersFlow: Flow<List<SellerUI>>,
     scope: CoroutineScope,
     onLongClick: (SellerUI) -> Unit,
+    onClick: (SellerUI) -> Unit,
 ) {
     sellersFlow.onEach { sellers ->
         removeAllViews()
@@ -94,9 +99,8 @@ private fun MapView.collectSellers(
                 markerView(
                     sellerUI = seller,
                     context = context,
-                    onLongClick = {
-
-                    }
+                    onLongClick = { onLongClick(seller) },
+                    onClick = { onClick(seller) }
                 )
             )
         }

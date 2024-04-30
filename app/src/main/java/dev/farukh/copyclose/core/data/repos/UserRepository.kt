@@ -1,16 +1,17 @@
 package dev.farukh.copyclose.core.data.repos
 
+import dev.farukh.copyclose.core.AppError
+import dev.farukh.copyclose.core.LocalError
 import dev.farukh.copyclose.core.NetworkError
-import dev.farukh.copyclose.core.ResourceError
 import dev.farukh.copyclose.core.data.dto.UserDTO
+import dev.farukh.copyclose.core.data.models.UserInfoDTO
 import dev.farukh.copyclose.core.data.source.UserLocalDataSource
 import dev.farukh.copyclose.core.data.source.UserRemoteDataSource
 import dev.farukh.copyclose.core.utils.Result
-import dev.farukh.copyclose.core.utils.extensions.asNetworkError
+import dev.farukh.copyclose.features.map.data.dto.SellerDTO
 import dev.farukh.network.core.AddressCore
 import dev.farukh.network.core.RoleCore
 import dev.farukh.network.services.copyClose.info.response.UserInfoResponse
-import dev.farukh.network.utils.RequestResult
 
 class UserRepository(
     private val localDataSource: UserLocalDataSource,
@@ -24,15 +25,9 @@ class UserRepository(
     ) = localDataSource.createOrUpdateUser(role, user, address)
 
     suspend fun updateUserData(login: String, authToken: String): Result<String, NetworkError> {
-        remoteDataSource.getUserInfo(login, authToken)
         return when (val infoResult = remoteDataSource.getUserInfo(login, authToken)) {
-            is RequestResult.ClientError -> infoResult.asNetworkError()
-            is RequestResult.ServerError -> infoResult.asNetworkError()
-            is RequestResult.HostError -> infoResult.asNetworkError()
-            is RequestResult.TimeoutError -> infoResult.asNetworkError()
-            is RequestResult.Unknown -> infoResult.asNetworkError()
-
-            is RequestResult.Success -> updateLocalInfo(infoResult.data)
+            is Result.Error -> infoResult
+            is Result.Success -> updateLocalInfo(infoResult.data)
         }
     }
 
@@ -70,13 +65,51 @@ class UserRepository(
     suspend fun makeUserInActive(userID: String) {
         localDataSource.makeUserInActive(userID)
     }
-}
 
-private fun RequestResult.ClientError.asNetworkError(): Result.Error<NetworkError> {
-    return Result.Error(
-        when (code) {
-            404 -> ResourceError.NotFoundError
-            else -> NetworkError.UnknownError(Exception("$code $errorMessage"))
+    suspend fun getSellers(): Result<List<SellerDTO>, AppError> {
+        val activeUser =
+            localDataSource.getActiveUser() ?: return Result.Error(LocalError.NoActiveUser)
+        return remoteDataSource.getSellers(activeUser.id, activeUser.authToken!!)
+    }
+
+    suspend fun getUserData(userID: String): Result<UserInfoDTO, AppError> {
+        val localUser = localDataSource.getUserByID(userID)
+        return if (localUser == null) {
+            val activeUser = localDataSource.getActiveUser()!!
+            when (val userInfoResult = remoteDataSource.getUserInfoV2(userID, activeUser.id, activeUser.authToken!!)) {
+                is Result.Error -> userInfoResult
+                is Result.Success -> userInfoResult.data.toDto()
+            }
+        } else {
+            when (val userImageResult = remoteDataSource.getUserImageRaw(localUser.iconID)) {
+                is Result.Error -> userImageResult
+                is Result.Success -> Result.Success(
+                    UserInfoDTO(
+                        userID = localUser.id,
+                        name = localUser.name,
+                        imageData = userImageResult.data,
+                        isSeller = localDataSource.getRole(localUser.roleID).canSell == 1L,
+                        categories = emptyList()
+                    )
+                )
+            }
         }
-    )
+    }
+
+    private suspend fun UserInfoResponse.toDto(): Result<UserInfoDTO, NetworkError> =
+        when (val imageRawResult = remoteDataSource.getUserImageRaw(imageID)) {
+            is Result.Error -> imageRawResult
+            is Result.Success ->
+                Result.Success(
+                    UserInfoDTO(
+                        userID = userID,
+                        name = name,
+                        imageData = imageRawResult.data,
+                        isSeller = role.canSell,
+                        categories = emptyList()
+                    )
+                )
+        }
+
+    suspend fun getActiveUser() = localDataSource.getActiveUser()
 }
