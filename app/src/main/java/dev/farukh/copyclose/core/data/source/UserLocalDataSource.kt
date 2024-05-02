@@ -9,6 +9,7 @@ import dev.farukh.network.core.AddressCore
 import dev.farukh.network.core.RoleCore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
@@ -17,6 +18,7 @@ class UserLocalDataSource(private val db: CopyCloseDB) {
         .asFlow()
         .mapToOneOrNull(Dispatchers.IO)
         .map { it?.id }
+        .distinctUntilChanged()
     suspend fun createOrUpdateUser(
         role: RoleCore,
         user: UserDTO,
@@ -110,5 +112,9 @@ class UserLocalDataSource(private val db: CopyCloseDB) {
 
     suspend fun getRole(roleID: Long) = withContext(Dispatchers.IO) {
         db.roleQueries.getRoleByID(roleID).executeAsOne()
+    }
+
+    suspend fun getAddressByID(addressID: String) = withContext(Dispatchers.IO) {
+        db.addressQueries.getAddressByID(addressID).executeAsOne()
     }
 }

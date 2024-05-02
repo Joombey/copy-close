@@ -9,7 +9,7 @@ import dev.farukh.copyclose.core.data.repos.AuthRepository
 import dev.farukh.copyclose.core.data.repos.UserRepository
 import dev.farukh.copyclose.core.data.source.UserLocalDataSource
 import dev.farukh.copyclose.core.data.source.UserRemoteDataSource
-import dev.farukh.copyclose.core.utils.MediaInserter
+import dev.farukh.copyclose.core.utils.MediaManager
 import dev.farukh.network.networkDI
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -26,9 +26,9 @@ internal fun coreDI(appDI: DI) = DI {
 
     bindProvider { UserLocalDataSource(instance()) }
 
-    bindProvider { MediaInserter(instance<Context>().contentResolver) }
+    bindProvider { MediaManager(instance<Context>().contentResolver) }
 
-    bindProvider { UserRemoteDataSource(instance(), instance(), instance(), instance()) }
+    bindProvider { UserRemoteDataSource(instance(), instance(), instance(), instance(), instance()) }
 
     bindProvider { UserRepository(instance(), instance()) }
 

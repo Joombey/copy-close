@@ -26,7 +26,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import dev.farukh.copyclose.core.Screen
@@ -90,6 +89,7 @@ fun App() {
             startDestination = Screen.Splash.route,
             modifier = Modifier
                 .padding(scaffoldPadding)
+                .padding(UiUtils.containerPaddingDefault)
                 .fillMaxSize()
         ) {
             authGraph(
@@ -218,12 +218,11 @@ fun LaunchAuthCheck(
     navController: NavController,
     source: Flow<String?>
 ) {
-    val navBackStack by navController.currentBackStackEntryAsState()
     LaunchedEffect(Unit) {
         source.collect { userID ->
-            if (userID == null && navBackStack?.destination?.route?.contains(Screen.AuthGraph.route) == false) {
+            if (userID == null && navController.currentBackStackEntry?.destination?.route?.contains(Screen.AuthGraph.route) == false) {
                 navController.navigateWithOptionsTo(Screen.AuthGraph.Auth.route)
-            } else if (userID != null) {
+            } else if (userID != null && navController.currentDestination?.route == Screen.Splash.route) {
                 navController.navigateWithOptionsTo(Screen.Map.route)
             }
         }

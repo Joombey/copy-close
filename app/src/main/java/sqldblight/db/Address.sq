@@ -16,3 +16,6 @@ addressExists:
 SELECT EXISTS(
     SELECT * FROM addressEntity WHERE id = ?
 );
+
+getAddressByID:
+SELECT * FROM addressEntity WHERE id = ?;

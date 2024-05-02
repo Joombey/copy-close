@@ -9,6 +9,10 @@ fun profileDI(parentDI: DI) = DI {
     extend(parentDI)
 
     bindFactory<String, ProfileViewModel> { userID ->
-        ProfileViewModel(instance(), userID)
+        ProfileViewModel(
+            userRepository = instance(),
+            userID = userID,
+            mediaManager = instance(),
+        )
     }
 }

@@ -6,9 +6,11 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.InputStream
 
-class MediaInserter(private val contentResolver: ContentResolver) {
+class MediaManager(private val contentResolver: ContentResolver) {
     fun insertToMediaAndGetUri(data: ByteArray, mime: String, filename: String): String? {
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
@@ -54,6 +56,15 @@ class MediaInserter(private val contentResolver: ContentResolver) {
             uri.toString()
         }
     }
+
+    suspend fun getMediaByUri(uri: Uri) =
+        if (uri.scheme != "content") null
+        else withContext(Dispatchers.IO) {
+            contentResolver.openInputStream(uri)?.use {
+                it.readBytes()
+            }
+        }
+
 
     fun createMedia(mime: String, filename: String): Uri? {
         val contentValues = ContentValues().apply {

@@ -1,5 +1,8 @@
 package dev.farukh.copyclose.core.data.repos
 
+import android.net.Uri
+import db.AddressEntity
+import db.RoleEntity
 import dev.farukh.copyclose.core.AppError
 import dev.farukh.copyclose.core.LocalError
 import dev.farukh.copyclose.core.NetworkError
@@ -11,6 +14,7 @@ import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.copyclose.features.map.data.dto.SellerDTO
 import dev.farukh.network.core.AddressCore
 import dev.farukh.network.core.RoleCore
+import dev.farukh.network.core.ServiceCore
 import dev.farukh.network.services.copyClose.info.response.UserInfoResponse
 
 class UserRepository(
@@ -73,27 +77,27 @@ class UserRepository(
     }
 
     suspend fun getUserData(userID: String): Result<UserInfoDTO, AppError> {
-        val localUser = localDataSource.getUserByID(userID)
-        return if (localUser == null) {
+//        val localUser = localDataSource.getUserByID(userID)
+//        return if (localUser == null) {
             val activeUser = localDataSource.getActiveUser()!!
-            when (val userInfoResult = remoteDataSource.getUserInfoV2(userID, activeUser.id, activeUser.authToken!!)) {
+            return when (val userInfoResult = remoteDataSource.getUserInfoV2(userID, activeUser.id, activeUser.authToken!!)) {
                 is Result.Error -> userInfoResult
                 is Result.Success -> userInfoResult.data.toDto()
             }
-        } else {
-            when (val userImageResult = remoteDataSource.getUserImageRaw(localUser.iconID)) {
-                is Result.Error -> userImageResult
-                is Result.Success -> Result.Success(
-                    UserInfoDTO(
-                        userID = localUser.id,
-                        name = localUser.name,
-                        imageData = userImageResult.data,
-                        isSeller = localDataSource.getRole(localUser.roleID).canSell == 1L,
-                        categories = emptyList()
-                    )
-                )
-            }
-        }
+//        } else {
+//            when (val userImageResult = remoteDataSource.getUserImageRaw(localUser.iconID)) {
+//                is Result.Error -> userImageResult
+//                is Result.Success -> Result.Success(
+//                    UserInfoDTO(
+//                        userID = localUser.id,
+//                        name = localUser.name,
+//                        imageData = userImageResult.data,
+//                        isSeller = localDataSource.getRole(localUser.roleID).canSell == 1L,
+//                        services = emptyList()
+//                    )
+//                )
+//            }
+//        }
     }
 
     private suspend fun UserInfoResponse.toDto(): Result<UserInfoDTO, NetworkError> =
@@ -106,10 +110,68 @@ class UserRepository(
                         name = name,
                         imageData = imageRawResult.data,
                         isSeller = role.canSell,
-                        categories = emptyList()
+                        services = services
                     )
                 )
         }
 
     suspend fun getActiveUser() = localDataSource.getActiveUser()
+    suspend fun editProfile(
+        idsToDelete: MutableList<String>,
+        services: List<ServiceCore>,
+        name: String,
+        newImageUri: Uri?
+    ): Result<Unit, AppError> {
+        val userDTO = localDataSource.getActiveUser()!!.let { activeUser ->
+            UserDTO(
+                id = activeUser.id,
+                roleID = activeUser.roleID.toInt(),
+                addressID = activeUser.addressID,
+                name = name,
+                authToken = activeUser.authToken!!,
+                icon = activeUser.icon,
+                iconUrl = activeUser.iconID
+            )
+        }
+        val activeUserRole = localDataSource.getRole(userDTO.roleID).toCore()
+        val activeUserAddress = localDataSource.getAddressByID(userDTO.addressID).toCore()
+
+        val editProfileResult = remoteDataSource.editProfile(
+            userID = userDTO.id,
+            authToken = userDTO.authToken,
+            idsToDelete = idsToDelete,
+            services = services,
+            name = name,
+            newImageUri = newImageUri
+        )
+        return when (editProfileResult) {
+            is Result.Error -> editProfileResult
+            is Result.Success -> {
+                try {
+                    localDataSource.createOrUpdateUser(
+                        role = activeUserRole,
+                        user = userDTO,
+                        address = activeUserAddress
+                    )
+                    editProfileResult
+                } catch (e: Exception) {
+                    Result.Error(LocalError.NoActiveUser)
+                }
+            }
+        }
+    }
+
+    private fun RoleEntity.toCore() = RoleCore(
+        id = id.toInt(),
+        canBan = canBan > 0,
+        canBuy = canBuy > 0,
+        canSell = canSell > 0
+    )
+
+    private fun AddressEntity.toCore() = AddressCore(
+        id = id,
+        lat = lat,
+        lon = lon,
+        addressName = addressName,
+    )
 }

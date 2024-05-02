@@ -1,4 +1,4 @@
-package dev.farukh.network.services.copyClose.map
+package dev.farukh.network.services.copyClose.profile
 
 import android.util.Log
 import dev.farukh.network.BuildConfig
@@ -17,8 +17,8 @@ import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
-internal val mapServiceDI by DI.Module {
-    bindProvider(Tags.COPY_CLOSE_MAP) {
+internal val profileServiceDI by DI.Module {
+    bindProvider(Tags.COPY_CLOSE_PROFILE) {
         Json {
             encodeDefaults = true
             isLenient = true
@@ -28,10 +28,10 @@ internal val mapServiceDI by DI.Module {
         }
     }
 
-    bindProvider(Tags.COPY_CLOSE_MAP) {
+    bindProvider(Tags.COPY_CLOSE_PROFILE) {
         HttpClient(OkHttp) {
             install(ContentNegotiation) {
-                json(instance(Tags.COPY_CLOSE_MAP))
+                json(instance(Tags.COPY_CLOSE_PROFILE))
             }
             Logging {
                 logger = object : Logger {
@@ -41,11 +41,11 @@ internal val mapServiceDI by DI.Module {
                 }
                 level = LogLevel.ALL
             }
-            defaultRequest { url("${BuildConfig.CopyCloseURL}/map/") }
+            defaultRequest { url("${BuildConfig.CopyCloseURL}/profile/") }
         }
     }
 
-    bindProvider<MapService> {
-        MapServiceImpl(instance(Tags.COPY_CLOSE_MAP))
+    bindProvider<ProfileService> {
+        ProfileServiceImpl(instance(Tags.COPY_CLOSE_PROFILE), instance(Tags.COPY_CLOSE_PROFILE))
     }
 }

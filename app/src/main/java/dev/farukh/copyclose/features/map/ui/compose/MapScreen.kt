@@ -1,7 +1,6 @@
 package dev.farukh.copyclose.features.map.ui.compose
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -12,7 +11,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import dev.farukh.copyclose.features.map.mapDI
 import dev.farukh.copyclose.features.map.ui.MapViewModel
@@ -79,9 +77,7 @@ fun MapScreen(
         ZoomButtons(
             onZoomIn = { zoomInTrigger = zoomInTrigger?.not() ?: false },
             onZoomOut = { zoomOutTrigger = zoomOutTrigger?.not() ?: false },
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(16.dp)
+            modifier = Modifier.align(Alignment.CenterEnd)
         )
     }
 }

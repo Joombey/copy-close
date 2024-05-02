@@ -1,9 +1,11 @@
 package dev.farukh.copyclose.core.data.models
 
+import dev.farukh.network.core.ServiceCore
+
 class UserInfoDTO (
     val userID: String,
     val name: String,
     val imageData: ByteArray,
     val isSeller: Boolean,
-    val categories: List<ServiceCategory> = emptyList()
+    val services: List<ServiceCore> = emptyList()
 )

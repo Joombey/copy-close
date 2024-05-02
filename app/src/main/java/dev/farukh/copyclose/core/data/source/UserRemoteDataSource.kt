@@ -1,25 +1,30 @@
 package dev.farukh.copyclose.core.data.source
 
+import android.net.Uri
 import dev.farukh.copyclose.core.AuthError
 import dev.farukh.copyclose.core.NetworkError
 import dev.farukh.copyclose.core.ResourceError
-import dev.farukh.copyclose.core.utils.MediaInserter
+import dev.farukh.copyclose.core.utils.MediaManager
 import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.copyclose.core.utils.extensions.asNetworkError
 import dev.farukh.copyclose.core.utils.extensions.asUnknownError
 import dev.farukh.copyclose.features.map.data.dto.SellerDTO
+import dev.farukh.network.core.ServiceCore
 import dev.farukh.network.services.copyClose.file.FileService
 import dev.farukh.network.services.copyClose.info.InfoService
 import dev.farukh.network.services.copyClose.info.response.UserInfoResponse
 import dev.farukh.network.services.copyClose.map.MapService
 import dev.farukh.network.services.copyClose.map.response.SellerInfoResponse
+import dev.farukh.network.services.copyClose.profile.ProfileService
+import dev.farukh.network.services.copyClose.profile.request.EditProfileRequest
 import dev.farukh.network.utils.RequestResult
 
 class UserRemoteDataSource(
     private val infoService: InfoService,
     private val fileService: FileService,
-    private val mediaInserter: MediaInserter,
+    private val mediaManager: MediaManager,
     private val mapService: MapService,
+    private val profileService: ProfileService,
 ) {
     suspend fun getUserInfo(login: String, authToken: String): Result<UserInfoResponse, NetworkError> {
         return when(val userInfoResult = infoService.getUserInfo(login, authToken)) {
@@ -45,8 +50,8 @@ class UserRemoteDataSource(
 
 
     suspend fun getUserImage(imageID: String): Result<String, NetworkError> {
-        val uri = mediaInserter.createMedia("image/jpeg", imageID)
-        return mediaInserter.getMediaOutStream(uri!!)!!.use {
+        val uri = mediaManager.createMedia("image/jpeg", imageID)
+        return mediaManager.getMediaOutStream(uri!!)!!.use {
             when (val result = fileService.getImage(imageID, it)) {
                 is RequestResult.ClientError -> result.asNetworkError()
                 is RequestResult.ServerError -> result.asNetworkError()
@@ -105,6 +110,35 @@ class UserRemoteDataSource(
         name = name,
         imageID = imageID
     )
+
+    suspend fun editProfile(
+        userID: String,
+        authToken: String,
+        idsToDelete: MutableList<String>,
+        services: List<ServiceCore>,
+        name: String,
+        newImageUri: Uri?
+    ): Result<Unit, NetworkError> {
+        val editResult = profileService.editProfile(
+            editProfileRequest = EditProfileRequest(
+                userID = userID,
+                authToken = authToken,
+                servicesToDelete = idsToDelete,
+                services = services,
+                name = name
+            ),
+            image = newImageUri?.let { mediaManager.getMediaByUri(newImageUri) }
+        )
+        return when(editResult) {
+            is RequestResult.ClientError -> editResult.asNetworkError()
+            is RequestResult.HostError -> editResult.asNetworkError()
+            is RequestResult.ServerError -> editResult.asNetworkError()
+            is RequestResult.TimeoutError -> editResult.asNetworkError()
+            is RequestResult.Unknown -> editResult.asNetworkError()
+
+            is RequestResult.Success -> Result.Success(Unit)
+        }
+    }
 }
 
 private fun RequestResult.ClientError.asNetworkError(): Result.Error<NetworkError> {
