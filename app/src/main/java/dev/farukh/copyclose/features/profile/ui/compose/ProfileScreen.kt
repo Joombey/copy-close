@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -24,7 +23,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,8 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
 import dev.farukh.copyclose.R
+import dev.farukh.copyclose.core.ui.LoadingPopup
 import dev.farukh.copyclose.core.utils.CircleImage
 import dev.farukh.copyclose.core.utils.Toast
 import dev.farukh.copyclose.core.utils.UiUtils
@@ -54,6 +52,7 @@ import org.kodein.di.compose.withDI
 fun ProfileScreen(
     userID: String,
     onLogOut: () -> Unit,
+    onCreateOrder: () -> Unit,
     modifier: Modifier = Modifier
 ) = withDI(di = profileDI(localDI())) {
     val viewModel: ProfileViewModel by rememberViewModel(tag = null, arg = userID)
@@ -64,6 +63,7 @@ fun ProfileScreen(
                 ProfileView(
                     uiState = viewModel.uiState as ProfileUIState.ProfileData,
                     onLogOut = onLogOut,
+                    onCreateOrder = onCreateOrder,
                     profileActions = viewModel,
                     modifier = modifier
                 )
@@ -91,6 +91,7 @@ fun ProfileView(
     uiState: ProfileUIState.ProfileData,
     profileActions: ProfileActions,
     onLogOut: () -> Unit,
+    onCreateOrder: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
@@ -128,19 +129,7 @@ fun ProfileView(
         }
 
         if (uiState.updating) {
-            Popup(alignment = Alignment.Center) {
-                Column(
-                    modifier = Modifier
-                        .clip(UiUtils.roundShapeDefault)
-                        .background(MaterialTheme.colorScheme.primaryContainer)
-                        .padding(UiUtils.containerPaddingDefault),
-                    verticalArrangement = Arrangement.spacedBy(UiUtils.arrangementDefault),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    CircularProgressIndicator()
-                    Text(text = stringResource(R.string.content_loading))
-                }
-            }
+            LoadingPopup()
         }
 
         Column(
@@ -187,6 +176,12 @@ fun ProfileView(
                         IconButton(onClick = profileActions::addService) {
                             Icon(imageVector = Icons.Filled.Add, contentDescription = null)
                         }
+                    }
+                }
+
+                if (!uiState.canEditProfile) {
+                    Button(onClick = onCreateOrder) {
+                        Text(text = stringResource(id = R.string.create_order))
                     }
                 }
 

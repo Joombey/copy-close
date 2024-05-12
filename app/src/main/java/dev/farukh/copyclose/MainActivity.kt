@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -32,6 +33,7 @@ import dev.farukh.copyclose.core.Screen
 import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.copyclose.features.auth.ui.compose.AuthScreen
 import dev.farukh.copyclose.features.map.ui.compose.MapScreen
+import dev.farukh.copyclose.features.order_creation.ui.compose.OrderCreationScreen
 import dev.farukh.copyclose.features.profile.ui.compose.ProfileScreen
 import dev.farukh.copyclose.features.register.ui.compose.RegisterScreen
 import kotlinx.coroutines.flow.Flow
@@ -122,10 +124,28 @@ fun App() {
                 route = Screen.Profile.route,
                 arguments = Screen.Profile.args
             ) { navBackStack ->
+                val userID = navBackStack.arguments!!.getString("userID")!!
                 ProfileScreen(
-                    userID = navBackStack.arguments!!.getString("userID")!!,
+                    userID = userID,
                     onLogOut = { viewModel.logOut(activeUserID!!) },
+                    onCreateOrder = {
+                        navController.navigateWithOptionsTo(Screen.OrderCreation(userID).route)
+                    },
                     modifier = Modifier.fillMaxSize()
+                )
+            }
+//
+            composable(
+                route = Screen.OrderCreation.route,
+                arguments = Screen.OrderCreation.args
+            ) { navBackStack ->
+                val sellerID = navBackStack.arguments!!.getString("userID")!!
+                OrderCreationScreen(
+                    sellerID = sellerID,
+                    onProfileClick = {
+                        navController.navigateWithOptionsTo(Screen.Profile(sellerID).route)
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 

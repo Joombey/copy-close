@@ -35,6 +35,7 @@ object UiUtils {
         }
     }
 
+    val dividerThicknessDefault: Dp = 2.dp
     val imageSizeMedium: Dp = 50.dp
     val arrangementDefault = 16.dp
     val contentPaddingDefault = PaddingValues(vertical = 8.dp)

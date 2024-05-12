@@ -16,9 +16,14 @@
     <string name="profile">Профиль</string>
     <string name="content_loading">Идёт загрузка контента</string>
     <string name="log_out">Выйти</string>
-    <string name="err_retry">Произошла ошибка, нажмите чтобы повторить повторить</string>
+    <string name="err_retry">Произошла ошибка, нажмите чтобы повторить</string>
     <string name="price">%d ₽</string>
     <string name="create_service">Создать услугу</string>
     <string name="no_services">Нет доступных услуг</string>
     <string name="service_profile_title">Предоставляемые услуги</string>
+    <string name="create_order">Заказать услугу</string>
+    <string name="total">Итого:</string>
+    <string name="media_size">Размер - %.2f мБ</string>
+    <string name="comment_label">Комментарий к заказу</string>
+    <string name="attach_file">Прикрепить файл</string>
 </resources>

@@ -59,4 +59,15 @@ sealed interface Screen {
             override val navIcon: ImageVector = Icons.Filled.ChecklistRtl
         }
     }
+
+    class OrderCreation(userID: String) : Screen by Companion {
+        override val route: String = "order-create/$userID"
+
+        companion object : Screen {
+            override val route: String = "order-create/{userID}"
+            override val args: List<NamedNavArgument> = listOf(
+                navArgument("userID") { type = NavType.StringType }
+            )
+        }
+    }
 }

@@ -7,7 +7,7 @@ import dev.farukh.copyclose.core.AppError
 import dev.farukh.copyclose.core.LocalError
 import dev.farukh.copyclose.core.NetworkError
 import dev.farukh.copyclose.core.data.dto.UserDTO
-import dev.farukh.copyclose.core.data.models.UserInfoDTO
+import dev.farukh.copyclose.core.data.dto.UserInfoDTO
 import dev.farukh.copyclose.core.data.source.UserLocalDataSource
 import dev.farukh.copyclose.core.data.source.UserRemoteDataSource
 import dev.farukh.copyclose.core.utils.Result
@@ -77,27 +77,11 @@ class UserRepository(
     }
 
     suspend fun getUserData(userID: String): Result<UserInfoDTO, AppError> {
-//        val localUser = localDataSource.getUserByID(userID)
-//        return if (localUser == null) {
             val activeUser = localDataSource.getActiveUser()!!
             return when (val userInfoResult = remoteDataSource.getUserInfoV2(userID, activeUser.id, activeUser.authToken!!)) {
                 is Result.Error -> userInfoResult
                 is Result.Success -> userInfoResult.data.toDto()
             }
-//        } else {
-//            when (val userImageResult = remoteDataSource.getUserImageRaw(localUser.iconID)) {
-//                is Result.Error -> userImageResult
-//                is Result.Success -> Result.Success(
-//                    UserInfoDTO(
-//                        userID = localUser.id,
-//                        name = localUser.name,
-//                        imageData = userImageResult.data,
-//                        isSeller = localDataSource.getRole(localUser.roleID).canSell == 1L,
-//                        services = emptyList()
-//                    )
-//                )
-//            }
-//        }
     }
 
     private suspend fun UserInfoResponse.toDto(): Result<UserInfoDTO, NetworkError> =
@@ -110,7 +94,8 @@ class UserRepository(
                         name = name,
                         imageData = imageRawResult.data,
                         isSeller = role.canSell,
-                        services = services
+                        services = services,
+                        addressCore = address
                     )
                 )
         }

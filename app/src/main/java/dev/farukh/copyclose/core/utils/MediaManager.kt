@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import dev.farukh.copyclose.core.data.models.MediaInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.InputStream
@@ -85,4 +86,26 @@ class MediaManager(private val contentResolver: ContentResolver) {
     }
 
     fun getMediaOutStream(uri: Uri) = contentResolver.openOutputStream(uri)
+
+    fun getMediaInfo(uri: Uri): MediaInfo? {
+        return contentResolver.query(
+            uri,
+            null,
+            null,
+            null,
+            null
+        )?.use { cursor ->
+            if (!cursor.moveToFirst()) return@use null
+            val nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
+            val sizeIndex = cursor.getColumnIndex(MediaStore.MediaColumns.SIZE)
+            val mimeTypeIndex = cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE)
+
+            MediaInfo(
+                name = cursor.getString(nameIndex)!!,
+                size = cursor.getLong(sizeIndex),
+                mimeType = cursor.getString(mimeTypeIndex),
+                extensions = cursor.getString(nameIndex)!!.split(".").last()
+            )
+        }
+    }
 }
