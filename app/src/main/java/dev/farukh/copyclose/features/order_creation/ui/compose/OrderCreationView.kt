@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -27,9 +28,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -55,9 +58,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.window.DialogProperties
 import dev.farukh.copyclose.R
 import dev.farukh.copyclose.core.data.models.MediaInfo
+import dev.farukh.copyclose.core.ui.LoadingDialog
 import dev.farukh.copyclose.core.utils.UiUtils
+import dev.farukh.copyclose.features.order_creation.ui.CreationUIState
 import dev.farukh.copyclose.features.order_creation.ui.OrderCreationActions
 import dev.farukh.copyclose.features.order_creation.ui.OrderCreationUIState
 import dev.farukh.copyclose.ui.theme.DOCXBackground
@@ -70,12 +76,24 @@ fun OrderCreationView(
     uiState: OrderCreationUIState.OrderCreationData,
     actions: OrderCreationActions,
     onProfileClick: () -> Unit,
+    onOrderCreated: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(UiUtils.arrangementDefault)
     ) {
+        OrderCreationProgressDialog(
+            creationState = uiState.creationState,
+            onOrderCreated = onOrderCreated,
+            onCreationInfoConfirmed = actions::creationInfoConfirmed,
+            modifier = Modifier.sizeIn(
+                minWidth = 200.dp,
+                maxWidth = 400.dp,
+                minHeight = 100.dp,
+                maxHeight = 300.dp
+            ),
+        )
         UserHeaderView(
             userIcon = uiState.icon,
             userName = uiState.name,
@@ -141,6 +159,58 @@ fun OrderCreationView(
                     text = stringResource(id = R.string.create_order),
                     style = MaterialTheme.typography.labelMedium
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun OrderCreationProgressDialog(
+    creationState: CreationUIState,
+    onOrderCreated: () -> Unit,
+    onCreationInfoConfirmed: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (creationState !is CreationUIState.Idle) {
+        LoadingDialog(
+            modifier = modifier,
+            properties = DialogProperties(dismissOnClickOutside = creationState.canDismiss),
+            onDismissRequest = { if (creationState.canDismiss) onCreationInfoConfirmed() }
+        ) {
+            when (creationState) {
+                is CreationUIState.ErrorCreation -> {
+                    Text(text = stringResource(id = R.string.create_order_err))
+                    Button(onClick = onCreationInfoConfirmed) {
+                        Text(text = stringResource(id = android.R.string.ok))
+                    }
+                }
+
+                is CreationUIState.SendingInfo -> {
+                    Text(text = stringResource(id = R.string.create_order_sending_info))
+                    LinearProgressIndicator()
+                }
+
+                is CreationUIState.StartSending -> {
+                    Text(text = stringResource(id = R.string.create_order_start_sending))
+                    LinearProgressIndicator()
+                }
+
+                is CreationUIState.Success -> {
+                    Text(text = stringResource(id = R.string.create_order_success))
+                    Button(onClick = onOrderCreated) {
+                        Text(text = stringResource(id = android.R.string.ok))
+                    }
+                }
+
+                is CreationUIState.UploadingFile -> {
+                    Text(text = stringResource(id = R.string.create_order_uploading_documents))
+                    LinearProgressIndicator(
+                        progress = { creationState.progress },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                else -> {}
             }
         }
     }
@@ -229,7 +299,7 @@ fun FilesListView(
     val openFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
-        if (uri == null) {
+        if (uri == null || attachedFiles.any { it.uri == uri }) {
             return@rememberLauncherForActivityResult
         } else {
             onFileChosen(uri)

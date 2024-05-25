@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.farukh.copyclose.core.data.repos.UserRepository
-import dev.farukh.copyclose.core.utils.MediaManager
+import dev.farukh.copyclose.core.utils.MediaManagerImpl
 import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.network.core.ServiceCore
@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 class ProfileViewModel(
     private val userRepository: UserRepository,
-    private val mediaManager: MediaManager,
+    private val mediaManager: MediaManagerImpl,
     private val userID: String
 ) : ViewModel(), ProfileActions {
     private var _uiState by mutableStateOf<ProfileUIState>(ProfileUIState.Loading)

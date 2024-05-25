@@ -53,7 +53,7 @@ internal class AuthServiceImpl(
             contentType(ContentType.MultiPart.FormData)
             setBody(
                 MultiPartFormDataContent(
-                    formData {
+                    formData{
                         append(
                             key = "register",
                             value = json.encodeToString(registerRequest),

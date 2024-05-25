@@ -26,4 +26,11 @@
     <string name="media_size">Размер - %.2f мБ</string>
     <string name="comment_label">Комментарий к заказу</string>
     <string name="attach_file">Прикрепить файл</string>
+
+    <!--  order creation strings  -->
+    <string name="create_order_start_sending">Начинаем составление заказа</string>
+    <string name="create_order_err">Ошибка при оформлении заказа\nПроверьте интернет соединение</string>
+    <string name="create_order_success">Заказ успешно сформирован</string>
+    <string name="create_order_sending_info">Отправляем данные заказа</string>
+    <string name="create_order_uploading_documents">Отправляем файлы</string>
 </resources>

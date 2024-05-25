@@ -19,6 +19,7 @@ import org.kodein.di.compose.withDI
 fun OrderCreationScreen(
     sellerID: String,
     onProfileClick: () -> Unit,
+    onOrderCreated: () -> Unit,
     modifier: Modifier = Modifier
 ) = withDI(di = orderCreationDI(localDI())) {
     val viewModel: OrderCreationViewModel by rememberViewModel(arg = sellerID)
@@ -41,6 +42,7 @@ fun OrderCreationScreen(
                     uiState = viewModel.uiState as OrderCreationUIState.OrderCreationData,
                     actions = viewModel,
                     onProfileClick = onProfileClick,
+                    onOrderCreated = onOrderCreated,
                     modifier = Modifier.matchParentSize()
                 )
             }

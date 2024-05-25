@@ -1,13 +1,12 @@
-package dev.farukh.network.services.copyClose.file
+package dev.farukh.network.services.copyClose.order
 
 import android.util.Log
 import dev.farukh.network.BuildConfig
 import dev.farukh.network.Tags
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.plugins.DefaultRequest
-import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
@@ -18,8 +17,9 @@ import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
-internal val fileServiceDI by DI.Module {
-    bindProvider(Tags.COPY_CLOSE_FILE) {
+
+internal val orderServiceDI by DI.Module {
+    bindProvider(Tags.COPY_CLOSE_ORDER) {
         Json {
             encodeDefaults = true
             isLenient = true
@@ -28,13 +28,11 @@ internal val fileServiceDI by DI.Module {
             classDiscriminatorMode = ClassDiscriminatorMode.NONE
         }
     }
-    bindProvider(Tags.COPY_CLOSE_FILE) {
+
+    bindProvider(Tags.COPY_CLOSE_ORDER) {
         HttpClient(OkHttp) {
             install(ContentNegotiation) {
-                json(instance(Tags.COPY_CLOSE_FILE))
-            }
-            install(HttpTimeout) {
-                socketTimeoutMillis = 30000
+                json(instance(Tags.COPY_CLOSE_ORDER))
             }
             Logging {
                 logger = object : Logger {
@@ -44,13 +42,11 @@ internal val fileServiceDI by DI.Module {
                 }
                 level = LogLevel.ALL
             }
-            install(DefaultRequest) {
-                url("${BuildConfig.CopyCloseURL}/file/")
-            }
+            defaultRequest { url("${BuildConfig.CopyCloseURL}/order/") }
         }
     }
 
-    bindProvider<FileService> {
-        FileServiceImpl(instance(Tags.COPY_CLOSE_FILE))
+    bindProvider<OrderService> {
+        OrderServiceImpl(instance(Tags.COPY_CLOSE_ORDER))
     }
 }

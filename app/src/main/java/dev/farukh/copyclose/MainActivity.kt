@@ -71,15 +71,15 @@ fun App() {
             activeUserID?.let {
                 MapBottomNav(
                     selectedScreen = Screen.Splash,
-                    onMap = { navController.navigateWithOptionsTo(Screen.Map.route) },
-                    onOrders = { navController.navigateWithOptionsTo(Screen.Orders(it).route) },
+                    onMap = { navController.navigateWithStateAndSingle(Screen.Map.route) },
+                    onOrders = { navController.navigateWithStateAndSingle(Screen.Orders(it).route) },
                     onProfile = {
                         val isProfile: Boolean = navController.currentDestination?.route?.contains("profile") == true
                         val profileId: String = navController.currentBackStackEntry?.arguments?.getString("userID") ?: ""
                         if (isProfile && profileId == it) {
-                            navController.navigateWithOptionsTo(Screen.Profile(it).route)
+                            navController.navigateWithStateAndSingle(Screen.Profile(it).route)
                         } else {
-                            navController.navigateTo(Screen.Profile(it).route)
+                            navController.navigateWithState(Screen.Profile(it).route)
                         }
                     }
                 )
@@ -98,11 +98,11 @@ fun App() {
                 onLoginSuccess = { userID ->
                     scope.launch {
                         viewModel.makeUserActive(userID).join()
-                        navController.navigateWithOptionsTo(Screen.Map.route)
+                        navController.navigateWithStateAndSingle(Screen.Map.route)
                     }
                 },
-                onRegisterPress = { navController.navigateWithOptionsTo(Screen.AuthGraph.Register.route) },
-                onRegisterSuccess = { navController.navigateWithOptionsTo(Screen.AuthGraph.Auth.route) },
+                onRegisterPress = { navController.navigateWithStateAndSingle(Screen.AuthGraph.Register.route) },
+                onRegisterSuccess = { navController.navigateWithStateAndSingle(Screen.AuthGraph.Auth.route) },
             )
             composable(
                 route = Screen.Map.route,
@@ -110,7 +110,7 @@ fun App() {
             ) {
                 MapScreen(
                     onSellerClick = { sellerID ->
-                        navController.navigateWithOptionsTo(Screen.Profile(sellerID).route)
+                        navController.navigateWithStateAndSingle(Screen.Profile(sellerID).route)
                     }
                 )
             }
@@ -129,12 +129,12 @@ fun App() {
                     userID = userID,
                     onLogOut = { viewModel.logOut(activeUserID!!) },
                     onCreateOrder = {
-                        navController.navigateWithOptionsTo(Screen.OrderCreation(userID).route)
+                        navController.navigateWithStateAndSingle(Screen.OrderCreation(userID).route)
                     },
                     modifier = Modifier.fillMaxSize()
                 )
             }
-//
+
             composable(
                 route = Screen.OrderCreation.route,
                 arguments = Screen.OrderCreation.args
@@ -143,7 +143,13 @@ fun App() {
                 OrderCreationScreen(
                     sellerID = sellerID,
                     onProfileClick = {
-                        navController.navigateWithOptionsTo(Screen.Profile(sellerID).route)
+                        navController.navigateWithStateAndSingle(Screen.Profile(sellerID).route)
+                    },
+                    onOrderCreated = {
+                        navController.navigateWithPopUp(
+                            from = Screen.Map.route,
+                            to = Screen.Orders(activeUserID!!).route
+                        )
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -241,23 +247,33 @@ fun LaunchAuthCheck(
     LaunchedEffect(Unit) {
         source.collect { userID ->
             if (userID == null && navController.currentBackStackEntry?.destination?.route?.contains(Screen.AuthGraph.route) == false) {
-                navController.navigateWithOptionsTo(Screen.AuthGraph.Auth.route)
+                navController.navigateWithStateAndSingle(Screen.AuthGraph.Auth.route)
             } else if (userID != null && navController.currentDestination?.route == Screen.Splash.route) {
-                navController.navigateWithOptionsTo(Screen.Map.route)
+                navController.navigateWithStateAndSingle(Screen.Map.route)
             }
         }
     }
 }
 
-fun NavController.navigateWithOptionsTo(route: String) {
+fun NavController.navigateWithStateAndSingle(route: String) {
     navigate(route) {
         launchSingleTop = true
         restoreState = true
     }
 }
 
-fun NavController.navigateTo(route: String) {
+fun NavController.navigateWithState(route: String) {
     navigate(route) {
         restoreState = true
+    }
+}
+
+fun NavController.navigateWithPopUp(from: String, to: String) {
+    navigate(to) {
+        launchSingleTop = true
+        popUpTo(from) {
+            saveState = false
+            inclusive = true
+        }
     }
 }
