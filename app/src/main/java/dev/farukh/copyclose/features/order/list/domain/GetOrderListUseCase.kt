@@ -110,6 +110,7 @@ class GetOrderListUseCase(
                                 amount = service.amount
                             )
                         },
+                        id = responseUserDataPair.second.data.userID,
                         comment = responseUserDataPair.first.comment,
                         attachments = responseUserDataPair.first.attachments.map { attachment ->
                             Attachment(

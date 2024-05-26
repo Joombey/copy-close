@@ -14,7 +14,9 @@ import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.copyclose.features.order.list.data.dto.Attachment
 import dev.farukh.copyclose.features.order.list.data.dto.Service
 import dev.farukh.copyclose.features.order.list.domain.GetOrderListUseCase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class OrderListViewModel(
     private val getOrderListUseCase: GetOrderListUseCase,
@@ -37,8 +39,8 @@ class OrderListViewModel(
                             OrderUI(
                                 orderID = dto.orderID,
                                 name = dto.name,
-                                icon = UiUtils.bytesToImage(dto.icon),
-                                id = "asd",
+                                icon = withContext(Dispatchers.Default) { UiUtils.bytesToImage(dto.icon) },
+                                id = dto.id,
                                 totalPrice = dto.services.sumOf { it.price * it.amount },
                                 serviceList = dto.services,
                                 addressName = dto.addressName,
@@ -53,8 +55,12 @@ class OrderListViewModel(
                                     OrderUI(
                                         orderID = dto.orderID,
                                         name = dto.name,
-                                        icon = UiUtils.bytesToImage(dto.icon),
-                                        id = "asd",
+                                        icon = withContext(Dispatchers.Default) {
+                                            UiUtils.bytesToImage(
+                                                dto.icon
+                                            )
+                                        },
+                                        id = dto.id,
                                         totalPrice = dto.services.sumOf { it.price * it.amount },
                                         serviceList = dto.services,
                                         addressName = dto.addressName,

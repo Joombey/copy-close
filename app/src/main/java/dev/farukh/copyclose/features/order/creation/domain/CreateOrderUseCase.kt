@@ -4,7 +4,9 @@ import dev.farukh.copyclose.core.data.repos.FileRepository
 import dev.farukh.copyclose.core.data.repos.OrderRepository
 import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.copyclose.features.order.creation.data.dto.OrderCreationDTO
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 
 class CreateOrderUseCase(
     private val fileRepository: FileRepository,
@@ -27,5 +29,5 @@ class CreateOrderUseCase(
             is Result.Error -> emit(OrderCreationStage.Error)
             is Result.Success -> emit(OrderCreationStage.Success)
         }
-    }
+    }.flowOn(Dispatchers.IO)
 }
