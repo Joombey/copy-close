@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.features.order_creation.domain
+package dev.farukh.copyclose.features.order.creation.domain
 
 import dev.farukh.copyclose.core.AppError
 

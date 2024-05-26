@@ -33,7 +33,8 @@ import dev.farukh.copyclose.core.Screen
 import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.copyclose.features.auth.ui.compose.AuthScreen
 import dev.farukh.copyclose.features.map.ui.compose.MapScreen
-import dev.farukh.copyclose.features.order_creation.ui.compose.OrderCreationScreen
+import dev.farukh.copyclose.features.order.creation.ui.compose.OrderCreationScreen
+import dev.farukh.copyclose.features.order.list.ui.compose.OrderListScreen
 import dev.farukh.copyclose.features.profile.ui.compose.ProfileScreen
 import dev.farukh.copyclose.features.register.ui.compose.RegisterScreen
 import kotlinx.coroutines.flow.Flow
@@ -118,7 +119,11 @@ fun App() {
             composable(
                 route = Screen.Orders.route,
                 arguments = Screen.Orders.args
-            ) { AppSplash() }
+            ) {
+                OrderListScreen(
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
 
             composable(
                 route = Screen.Profile.route,

@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.features.order_creation.ui
+package dev.farukh.copyclose.features.order.creation.ui
 
 import android.net.Uri
 import androidx.compose.runtime.Stable
@@ -12,14 +12,14 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.farukh.copyclose.core.data.dto.OrderCreationDTO
 import dev.farukh.copyclose.core.data.models.MediaInfo
 import dev.farukh.copyclose.core.data.repos.UserRepository
 import dev.farukh.copyclose.core.utils.MediaManager
 import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.copyclose.core.utils.UiUtils
-import dev.farukh.copyclose.features.order_creation.domain.CreateOrderUseCase
-import dev.farukh.copyclose.features.order_creation.domain.OrderCreationStage
+import dev.farukh.copyclose.features.order.creation.data.dto.OrderCreationDTO
+import dev.farukh.copyclose.features.order.creation.domain.CreateOrderUseCase
+import dev.farukh.copyclose.features.order.creation.domain.OrderCreationStage
 import dev.farukh.network.core.ServiceCore
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -62,7 +62,7 @@ class OrderCreationViewModel(
                 sellerID = sellerID,
                 comment = comment,
                 attachments = attachedFiles,
-                services = services.map { it.first.id!! to it.second }.filter { it.second == 0 }
+                services = services.map { it.first.id!! to it.second }.filterNot { it.second == 0 }
             )
             createOrderUseCase(dto).collectLatest { creationStage ->
                 when (creationStage) {
@@ -188,6 +188,8 @@ sealed interface CreationUIState {
     data object StartSending: CreationUIState {
         override val canDismiss: Boolean = false
     }
+
+    @Stable
     interface UploadingFile : CreationUIState {
         val progress: Float
         override val canDismiss: Boolean get() = false

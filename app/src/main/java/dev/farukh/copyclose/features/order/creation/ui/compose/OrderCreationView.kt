@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.features.order_creation.ui.compose
+package dev.farukh.copyclose.features.order.creation.ui.compose
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -63,9 +63,9 @@ import dev.farukh.copyclose.R
 import dev.farukh.copyclose.core.data.models.MediaInfo
 import dev.farukh.copyclose.core.ui.LoadingDialog
 import dev.farukh.copyclose.core.utils.UiUtils
-import dev.farukh.copyclose.features.order_creation.ui.CreationUIState
-import dev.farukh.copyclose.features.order_creation.ui.OrderCreationActions
-import dev.farukh.copyclose.features.order_creation.ui.OrderCreationUIState
+import dev.farukh.copyclose.features.order.creation.ui.CreationUIState
+import dev.farukh.copyclose.features.order.creation.ui.OrderCreationActions
+import dev.farukh.copyclose.features.order.creation.ui.OrderCreationUIState
 import dev.farukh.copyclose.ui.theme.DOCXBackground
 import dev.farukh.copyclose.ui.theme.OtherExtensionBackground
 import dev.farukh.copyclose.ui.theme.PDFBackground

@@ -1,8 +1,7 @@
-package dev.farukh.copyclose.features.order_creation
+package dev.farukh.copyclose.features.order.creation
 
-import dev.farukh.copyclose.features.order_creation.data.repos.OrderRepository
-import dev.farukh.copyclose.features.order_creation.domain.CreateOrderUseCase
-import dev.farukh.copyclose.features.order_creation.ui.OrderCreationViewModel
+import dev.farukh.copyclose.features.order.creation.domain.CreateOrderUseCase
+import dev.farukh.copyclose.features.order.creation.ui.OrderCreationViewModel
 import org.kodein.di.DI
 import org.kodein.di.bindFactory
 import org.kodein.di.bindProvider
@@ -10,8 +9,6 @@ import org.kodein.di.instance
 
 fun orderCreationDI(parentDI: DI) = DI {
     extend(parentDI)
-
-    bindProvider { OrderRepository(orderService = instance()) }
 
     bindProvider {
         CreateOrderUseCase(

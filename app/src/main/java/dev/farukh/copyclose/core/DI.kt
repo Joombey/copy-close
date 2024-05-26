@@ -7,6 +7,7 @@ import db.CopyCloseDB
 import dev.farukh.copyclose.MainViewModel
 import dev.farukh.copyclose.core.data.repos.AuthRepository
 import dev.farukh.copyclose.core.data.repos.FileRepository
+import dev.farukh.copyclose.core.data.repos.OrderRepository
 import dev.farukh.copyclose.core.data.repos.UserRepository
 import dev.farukh.copyclose.core.data.source.UserLocalDataSource
 import dev.farukh.copyclose.core.data.source.UserRemoteDataSource
@@ -39,6 +40,8 @@ internal fun coreDI(appDI: DI) = DI {
     bindProvider { AuthRepository(instance()) }
 
     bindProvider { FileRepository(instance(), instance()) }
+
+    bindProvider { OrderRepository(instance(), instance()) }
 
     //ViewModels
     bindProvider { MainViewModel( instance() ) }

@@ -33,4 +33,10 @@
     <string name="create_order_success">Заказ успешно сформирован</string>
     <string name="create_order_sending_info">Отправляем данные заказа</string>
     <string name="create_order_uploading_documents">Отправляем файлы</string>
+
+    <!--  order list strings  -->
+    <string name="accept">Принять</string>
+    <string name="reject">Отколнить</string>
+    <string name="amount_title">Количество</string>
+    <string name="price_amount_format">%d x %d ₽</string>
 </resources>

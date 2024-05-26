@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.core.data.dto
+package dev.farukh.copyclose.features.order.creation.data.dto
 
 import dev.farukh.copyclose.core.data.models.MediaInfo
 

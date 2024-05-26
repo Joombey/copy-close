@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -16,8 +18,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.farukh.copyclose.R
 import dev.farukh.copyclose.core.utils.extensions.toast
 import java.io.IOException
 
@@ -54,7 +58,19 @@ fun CircleImage(icon: ImageBitmap, size: Dp) {
     Image(
         bitmap = icon,
         contentDescription = null,
-        modifier = Modifier.clip(CircleShape).size(size),
+        modifier = Modifier
+            .clip(CircleShape)
+            .size(size),
         contentScale = ContentScale.Crop
     )
+}
+
+@Composable
+fun LoadingErrorButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(onClick = onClick, modifier = modifier) {
+        Text(text = stringResource(id = R.string.err_retry))
+    }
 }

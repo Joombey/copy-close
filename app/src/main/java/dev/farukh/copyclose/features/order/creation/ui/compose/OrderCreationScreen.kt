@@ -1,16 +1,13 @@
-package dev.farukh.copyclose.features.order_creation.ui.compose
+package dev.farukh.copyclose.features.order.creation.ui.compose
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import dev.farukh.copyclose.R
 import dev.farukh.copyclose.core.ui.LoadingPopup
-import dev.farukh.copyclose.features.order_creation.orderCreationDI
-import dev.farukh.copyclose.features.order_creation.ui.OrderCreationUIState
-import dev.farukh.copyclose.features.order_creation.ui.OrderCreationViewModel
+import dev.farukh.copyclose.core.utils.LoadingErrorButton
+import dev.farukh.copyclose.features.order.creation.orderCreationDI
+import dev.farukh.copyclose.features.order.creation.ui.OrderCreationUIState
+import dev.farukh.copyclose.features.order.creation.ui.OrderCreationViewModel
 import org.kodein.di.compose.localDI
 import org.kodein.di.compose.rememberViewModel
 import org.kodein.di.compose.withDI
@@ -26,11 +23,7 @@ fun OrderCreationScreen(
     Box(modifier) {
         when (viewModel.uiState) {
             is OrderCreationUIState.Error -> {
-                Button(
-                    onClick = viewModel::getUserData
-                ) {
-                    Text(text = stringResource(id = R.string.err_retry))
-                }
+                LoadingErrorButton(onClick = viewModel::getUserData)
             }
 
             is OrderCreationUIState.Loading -> {

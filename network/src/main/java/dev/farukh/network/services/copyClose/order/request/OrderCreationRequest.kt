@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 class OrderCreationRequest(
     @SerialName("user_id")
     val userID: String,
-    @SerialName("seller_id")
+    @SerialName("sellerID")
     val sellerID: String,
     @SerialName("auth_token")
     val authToken: String,
