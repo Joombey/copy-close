@@ -4,6 +4,7 @@ import dev.farukh.copyclose.core.NetworkError
 import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.copyclose.core.utils.extensions.asResult
 import dev.farukh.copyclose.features.order.creation.data.dto.OrderCreationDTO
+import dev.farukh.copyclose.features.order.list.data.dto.OrderState
 import dev.farukh.network.services.copyClose.info.InfoService
 import dev.farukh.network.services.copyClose.order.OrderService
 import dev.farukh.network.services.copyClose.order.request.OrderCreationRequest
@@ -31,4 +32,17 @@ class OrderRepository(
 
     suspend fun getOrdersFor(userID: String, authToken: String) =
         infoService.getOrderInfoFor(userID, authToken).asResult()
+
+    suspend fun updateOrderState(
+        userID: String,
+        authToken: String,
+        orderID: String,
+        state: OrderState
+    ) = orderService.updateOrderState(
+        userId = userID,
+        authToken = authToken,
+        orderId = orderID,
+        state = state.ordinal
+    ).asResult()
+
 }

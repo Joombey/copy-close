@@ -8,5 +8,6 @@ class OrderDTO(
     val icon: ByteArray,
     val services: List<Service>,
     val comment: String,
+    val state: OrderState,
     val attachments: List<Attachment>
 )

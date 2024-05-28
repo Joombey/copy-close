@@ -12,14 +12,18 @@ import androidx.lifecycle.viewModelScope
 import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.copyclose.features.order.list.data.dto.Attachment
+import dev.farukh.copyclose.features.order.list.data.dto.OrderDTO
+import dev.farukh.copyclose.features.order.list.data.dto.OrderState
 import dev.farukh.copyclose.features.order.list.data.dto.Service
 import dev.farukh.copyclose.features.order.list.domain.GetOrderListUseCase
+import dev.farukh.copyclose.features.order.list.domain.UpdateOrderStateUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class OrderListViewModel(
     private val getOrderListUseCase: GetOrderListUseCase,
+    private val updateOrderStateUseCase: UpdateOrderStateUseCase
 ) : ViewModel(), OrderListActions {
     private var _state by mutableStateOf<OrderListUIState>(OrderListUIState.Loading)
     val state: OrderListUIState get() = _state
@@ -29,61 +33,41 @@ class OrderListViewModel(
     }
 
     fun getOrders() {
-        _state = OrderListUIState.Loading
         viewModelScope.launch {
             when (val ordersResult = (getOrderListUseCase.invoke())) {
                 is Result.Error -> _state = OrderListUIState.Error
                 is Result.Success -> {
-                    _state = OrderLoadedStateMutable(
-                        initialState = ordersResult.data.first.map { dto ->
-                            OrderUI(
-                                orderID = dto.orderID,
-                                name = dto.name,
-                                icon = withContext(Dispatchers.Default) { UiUtils.bytesToImage(dto.icon) },
-                                id = dto.id,
-                                totalPrice = dto.services.sumOf { it.price * it.amount },
-                                serviceList = dto.services,
-                                addressName = dto.addressName,
-                                comment = dto.comment,
-                                attachments = dto.attachments,
-                                acceptable = false,
-                                state = 0
-                            )
-                        }.toMutableList().apply {
-                            addAll(
-                                ordersResult.data.second.map { dto ->
-                                    OrderUI(
-                                        orderID = dto.orderID,
-                                        name = dto.name,
-                                        icon = withContext(Dispatchers.Default) {
-                                            UiUtils.bytesToImage(
-                                                dto.icon
-                                            )
-                                        },
-                                        id = dto.id,
-                                        totalPrice = dto.services.sumOf { it.price * it.amount },
-                                        serviceList = dto.services,
-                                        addressName = dto.addressName,
-                                        comment = dto.comment,
-                                        attachments = dto.attachments,
-                                        acceptable = true,
-                                        state = 0
-                                    )
-                                }
-                            )
-                        }
-                    )
+                    val groupedOrders = groupResult(ordersResult.data)
+                    (_state as? OrderLoadedStateMutable)?.apply {
+                        ordersMutable.clear()
+                        ordersMutable.addAll(groupedOrders)
+                    } ?: run {
+                        _state = OrderLoadedStateMutable(initialState = groupedOrders)
+                    }
                 }
             }
         }
     }
 
     override fun accept(orderID: String) {
-
+        updateState(orderID, OrderState.STATE_ACCEPTED)
     }
 
     override fun reject(orderID: String) {
+        updateState(orderID, OrderState.STATE_REJECTED)
+    }
 
+    private fun updateState(orderId: String, orderState: OrderState) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val updateResult = updateOrderStateUseCase(
+                orderID = orderId,
+                state = orderState
+            )
+            when (updateResult) {
+                is Result.Error -> {}
+                is Result.Success -> getOrders()
+            }
+        }
     }
 
     override fun info(orderUI: OrderUI) {
@@ -93,6 +77,47 @@ class OrderListViewModel(
     override fun dismissInfo() {
         (_state as? OrderLoadedStateMutable)?.orderInfoOpened = null
     }
+
+    private suspend fun groupResult(orderResult: Pair<List<OrderDTO>, List<OrderDTO>>) =
+        orderResult.first.map { dto ->
+            OrderUI(
+                orderID = dto.orderID,
+                name = dto.name,
+                icon = withContext(Dispatchers.Default) {
+                    UiUtils.bytesToImage(dto.icon)
+                },
+                id = dto.id,
+                totalPrice = dto.services.sumOf { it.price * it.amount },
+                serviceList = dto.services,
+                addressName = dto.addressName,
+                comment = dto.comment,
+                attachments = dto.attachments,
+                acceptable = false,
+                state = dto.state
+            )
+        }.toMutableList().apply {
+            addAll(
+                orderResult.second.map { dto ->
+                    OrderUI(
+                        orderID = dto.orderID,
+                        name = dto.name,
+                        icon = withContext(Dispatchers.Default) {
+                            UiUtils.bytesToImage(dto.icon)
+                        },
+                        id = dto.id,
+                        totalPrice = dto.services.sumOf { it.price * it.amount },
+                        serviceList = dto.services,
+                        addressName = dto.addressName,
+                        comment = dto.comment,
+                        attachments = dto.attachments,
+                        acceptable = true,
+                        state = dto.state
+                    )
+                }
+            )
+        }.groupBy {
+            it.state
+        }.flatMap { it.value }
 }
 
 sealed interface OrderListUIState {
@@ -127,5 +152,5 @@ data class OrderUI(
     val serviceList: List<Service>,
     val attachments: List<Attachment>,
     val acceptable: Boolean,
-    val state: Int,
+    val state: OrderState,
 )

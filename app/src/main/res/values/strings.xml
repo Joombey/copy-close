@@ -39,4 +39,8 @@
     <string name="reject">Отколнить</string>
     <string name="amount_title">Количество</string>
     <string name="price_amount_format">%d x %d ₽</string>
+    <string name="rejected">Отклонена</string>
+    <string name="completed">Завершён</string>
+    <string name="accepted">В работе</string>
+    <string name="attachment_label">Прикреплённые файлы</string>
 </resources>

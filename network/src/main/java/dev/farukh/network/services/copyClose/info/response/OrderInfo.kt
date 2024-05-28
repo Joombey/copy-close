@@ -17,4 +17,6 @@ data class OrderInfo(
     val services: List<Service>,
     @SerialName("comment")
     val comment: String,
+    @SerialName("state")
+    val state: Int,
 )

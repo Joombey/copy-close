@@ -114,7 +114,7 @@ fun OrderCreationView(
             onAdd = actions::addAmount,
             modifier = Modifier.fillMaxWidth()
         )
-        FilesListView(
+        AttachFileView(
             onFileChosen = actions::attachFile,
             onFileRemove = actions::detachFile,
             attachedFiles = uiState.attachedFiles,
@@ -290,7 +290,7 @@ fun UserHeaderView(
 }
 
 @Composable
-fun FilesListView(
+fun AttachFileView(
     onFileChosen: (Uri) -> Unit,
     onFileRemove: (Int) -> Unit,
     attachedFiles: List<MediaInfo>,
@@ -390,7 +390,9 @@ fun FilesListView(
                 key = { index, _ -> index }
             ) { index, item ->
                 AttachedFile(
-                    mediaInfo = item,
+                    name = item.name,
+                    extension = item.extensions,
+                    size = item.size.toInt(),
                     onDelete = { onFileRemove(index) },
                     modifier = Modifier
                         .size(height = 150.dp, width = 150.dp)
@@ -399,7 +401,6 @@ fun FilesListView(
             }
         }
     }
-
 }
 
 @Composable
@@ -440,15 +441,17 @@ fun OrdersView(
 
 @Composable
 fun AttachedFile(
-    mediaInfo: MediaInfo,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier
+    extension: String,
+    name: String,
+    modifier: Modifier = Modifier,
+    onDelete: (() -> Unit)? = null,
+    size: Int? = null,
 ) {
     Column(
         modifier = Modifier
             .clip(UiUtils.roundShapeDefault)
             .background(
-                when (mediaInfo.extensions) {
+                when (extension) {
                     "pdf" -> PDFBackground
                     "docx", "doc" -> DOCXBackground
                     else -> OtherExtensionBackground
@@ -462,23 +465,25 @@ fun AttachedFile(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = mediaInfo.name,
+                text = name,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.titleSmall
             )
-            IconButton(onClick = onDelete, modifier = Modifier.size(30.dp)) {
-                Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = null,
-                )
+            if (onDelete != null) {
+                IconButton(onClick = onDelete, modifier = Modifier.size(30.dp)) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = null,
+                    )
+                }
             }
         }
         Text(
-            text = mediaInfo.extensions.uppercase(),
+            text = extension.uppercase(),
             style = MaterialTheme.typography.titleSmall.copy(
-                color = when (mediaInfo.extensions) {
+                color = when (extension) {
                     "pdf" -> Color.White
                     "docx", "doc" -> Color.Black
                     else -> Color.White
@@ -488,13 +493,15 @@ fun AttachedFile(
             maxLines = 1,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
-        Spacer(modifier = Modifier.weight(1f))
-        Text(
-            text = stringResource(
-                id = R.string.media_size,
-                mediaInfo.size.toFloat() / 1024 / 1024
-            ),
-            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic)
-        )
+        if (size != null) {
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                text = stringResource(
+                    id = R.string.media_size,
+                    size.toFloat() / 1024 / 1024
+                ),
+                style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic)
+            )
+        }
     }
 }

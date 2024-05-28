@@ -10,6 +10,7 @@ import dev.farukh.copyclose.core.data.repos.UserRepository
 import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.copyclose.features.order.list.data.dto.Attachment
 import dev.farukh.copyclose.features.order.list.data.dto.OrderDTO
+import dev.farukh.copyclose.features.order.list.data.dto.OrderState
 import dev.farukh.copyclose.features.order.list.data.dto.Service
 import dev.farukh.network.services.copyClose.info.response.OrderInfo
 import kotlinx.coroutines.async
@@ -110,6 +111,7 @@ class GetOrderListUseCase(
                                 amount = service.amount
                             )
                         },
+                        state = OrderState.entries[responseUserDataPair.first.state],
                         id = responseUserDataPair.second.data.userID,
                         comment = responseUserDataPair.first.comment,
                         attachments = responseUserDataPair.first.attachments.map { attachment ->

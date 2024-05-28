@@ -1,6 +1,7 @@
 package dev.farukh.copyclose.features.order.list
 
 import dev.farukh.copyclose.features.order.list.domain.GetOrderListUseCase
+import dev.farukh.copyclose.features.order.list.domain.UpdateOrderStateUseCase
 import dev.farukh.copyclose.features.order.list.ui.OrderListViewModel
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -14,5 +15,17 @@ fun orderListDI(parentDI: DI) = DI {
             userRepository = instance()
         )
     }
-    bindProvider { OrderListViewModel(getOrderListUseCase = instance()) }
+
+    bindProvider {
+        UpdateOrderStateUseCase(
+            orderRepository = instance(),
+            userRepository = instance()
+        )
+    }
+    bindProvider {
+        OrderListViewModel(
+            getOrderListUseCase = instance(),
+            updateOrderStateUseCase = instance()
+        )
+    }
 }
