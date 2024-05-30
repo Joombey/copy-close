@@ -45,6 +45,7 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 
 kodein-di-framework-compose = { module = "org.kodein.di:kodein-di-framework-compose", version.ref = "kodeinDiVersion" }
 kodein-di-jvm = { module = "org.kodein.di:kodein-di-jvm", version.ref = "kodeinDiVersion" }
+ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktorVersion" }
 sql-delight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "androidDriverVersion" }
 sql-delight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "coroutinesExtensionsVersion" }
 junit = { module = "junit:junit", version.ref = "junitVersion" }

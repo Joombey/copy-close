@@ -23,7 +23,7 @@ import kotlinx.coroutines.withContext
 
 class OrderListViewModel(
     private val getOrderListUseCase: GetOrderListUseCase,
-    private val updateOrderStateUseCase: UpdateOrderStateUseCase
+    private val updateOrderStateUseCase: UpdateOrderStateUseCase,
 ) : ViewModel(), OrderListActions {
     private var _state by mutableStateOf<OrderListUIState>(OrderListUIState.Loading)
     val state: OrderListUIState get() = _state
@@ -55,6 +55,10 @@ class OrderListViewModel(
 
     override fun reject(orderID: String) {
         updateState(orderID, OrderState.STATE_REJECTED)
+    }
+
+    override fun finish(orderID: String) {
+        updateState(orderID, OrderState.STATE_COMPLETED)
     }
 
     private fun updateState(orderId: String, orderState: OrderState) {

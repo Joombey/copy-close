@@ -7,6 +7,7 @@ import dev.farukh.network.utils.commonPost
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
+import io.ktor.client.request.prepareGet
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsChannel
@@ -16,6 +17,7 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.utils.io.jvm.javaio.copyTo
+import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -40,9 +42,31 @@ interface FileService {
         size: Long,
         sessionID: String
     ): Flow<RequestResult<UploadProgress<String, String?>>>
+
+    suspend fun getDocument(id: String): RequestResult<InputStream>
+    fun getDocumentUrl(id: String): String
 }
 
-internal class FileServiceImpl(private val client: HttpClient) : FileService {
+internal class FileServiceImpl(
+    private val client: HttpClient,
+    private val documentUrl: String,
+) : FileService {
+
+    override fun getDocumentUrl(id: String) = documentUrl + id
+
+    override suspend fun getDocument(id: String): RequestResult<InputStream> {
+        return try {
+            RequestResult.Success(
+                client.prepareGet { url { url("document/$id") } }
+                    .execute()
+                    .bodyAsChannel()
+                    .toInputStream()
+            )
+        } catch (e: Exception) {
+            RequestResult.Unknown(e)
+        }
+    }
+
     override suspend fun getImage(imageID: String, dst: OutputStream): RequestResult<Unit> =
         client.commonGet(
             onResponse = { bodyAsChannel().copyTo(dst) },

@@ -1,4 +1,4 @@
-package dev.farukh.network.services.copyClose.file
+package dev.farukh.network.services.copyClose.chat
 
 import android.util.Log
 import dev.farukh.network.BuildConfig
@@ -11,6 +11,8 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
@@ -18,8 +20,8 @@ import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
-internal val fileServiceDI by DI.Module {
-    bindProvider(Tags.COPY_CLOSE_FILE) {
+val chatServiceDI by DI.Module {
+    bindProvider(Tags.COPY_CLOSE_CHAT) {
         Json {
             encodeDefaults = true
             isLenient = true
@@ -28,10 +30,18 @@ internal val fileServiceDI by DI.Module {
             classDiscriminatorMode = ClassDiscriminatorMode.NONE
         }
     }
-    bindProvider(Tags.COPY_CLOSE_FILE) {
+    bindProvider(Tags.COPY_CLOSE_CHAT) {
         HttpClient(OkHttp) {
+            install(WebSockets) {
+                maxFrameSize = 8192
+                contentConverter = KotlinxWebsocketSerializationConverter(
+                    instance(
+                        Tags.COPY_CLOSE_CHAT
+                    )
+                )
+            }
             install(ContentNegotiation) {
-                json(instance(Tags.COPY_CLOSE_FILE))
+                json(instance(Tags.COPY_CLOSE_CHAT))
             }
             install(HttpTimeout) {
                 socketTimeoutMillis = 30000
@@ -45,15 +55,12 @@ internal val fileServiceDI by DI.Module {
                 level = LogLevel.ALL
             }
             install(DefaultRequest) {
-                url("${BuildConfig.CopyCloseURL}/file/")
+                url("${BuildConfig.CopyCloseURL}/chat/")
             }
         }
     }
 
-    bindProvider<FileService> {
-        FileServiceImpl(
-            instance(Tags.COPY_CLOSE_FILE),
-            "${BuildConfig.CopyCloseURL}/file/document/"
-        )
+    bindProvider<ChatService> {
+        ChatServiceImpl(instance(Tags.COPY_CLOSE_CHAT))
     }
 }

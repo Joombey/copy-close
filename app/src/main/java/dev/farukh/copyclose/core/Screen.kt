@@ -40,9 +40,9 @@ sealed interface Screen {
         override val route: String = "profile/$userID"
 
         companion object : Screen {
-            override val route: String = "profile/{userID}"
+            override val route: String = "profile/{id}"
             override val args: List<NamedNavArgument> = listOf(
-                navArgument("userID") { type = NavType.StringType }
+                navArgument("id") { type = NavType.StringType }
             )
             override val navIcon: ImageVector = Icons.Filled.Person
         }
@@ -52,9 +52,9 @@ sealed interface Screen {
         override val route: String = "orders/$userID"
 
         companion object : Screen {
-            override val route: String = "orders/{userID}"
+            override val route: String = "orders/{id}"
             override val args: List<NamedNavArgument> = listOf(
-                navArgument("userID") { type = NavType.StringType }
+                navArgument("id") { type = NavType.StringType }
             )
             override val navIcon: ImageVector = Icons.Filled.ChecklistRtl
         }
@@ -64,9 +64,20 @@ sealed interface Screen {
         override val route: String = "order-create/$userID"
 
         companion object : Screen {
-            override val route: String = "order-create/{userID}"
+            override val route: String = "order-create/{id}"
             override val args: List<NamedNavArgument> = listOf(
-                navArgument("userID") { type = NavType.StringType }
+                navArgument("id") { type = NavType.StringType }
+            )
+        }
+    }
+
+    class Chat(userID: String, orderID: String): Screen by Companion {
+        override val route: String = "chat/$orderID?userID=$userID"
+        companion object: Screen {
+            override val route: String = "chat/{orderID}?userID={userID}"
+            override val args: List<NamedNavArgument> = listOf(
+                navArgument(name = "orderID") { type = NavType.StringType },
+                navArgument(name = "userID") { type = NavType.StringType }
             )
         }
     }

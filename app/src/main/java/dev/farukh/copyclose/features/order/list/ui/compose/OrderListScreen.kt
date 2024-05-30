@@ -13,7 +13,10 @@ import org.kodein.di.compose.rememberViewModel
 import org.kodein.di.compose.withDI
 
 @Composable
-fun OrderListScreen(modifier: Modifier = Modifier) = withDI(di = orderListDI(localDI())) {
+fun OrderListScreen(
+    modifier: Modifier = Modifier,
+    onChat: (String) -> Unit,
+) = withDI(di = orderListDI(localDI())) {
     val viewModel: OrderListViewModel by rememberViewModel()
     val uiState = viewModel.state
     Box(modifier = modifier) {
@@ -29,6 +32,7 @@ fun OrderListScreen(modifier: Modifier = Modifier) = withDI(di = orderListDI(loc
             is OrderListUIState.OrderLoadedSate -> {
                 OrderListView(
                     uiState = uiState,
+                    onChat = onChat,
                     actions = viewModel,
                     modifier = Modifier
                 )

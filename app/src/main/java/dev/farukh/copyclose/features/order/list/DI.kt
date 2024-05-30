@@ -12,7 +12,8 @@ fun orderListDI(parentDI: DI) = DI {
     bindProvider {
         GetOrderListUseCase(
             orderRepository = instance(),
-            userRepository = instance()
+            userRepository = instance(),
+            fileRepository = instance()
         )
     }
 
@@ -22,6 +23,7 @@ fun orderListDI(parentDI: DI) = DI {
             userRepository = instance()
         )
     }
+
     bindProvider {
         OrderListViewModel(
             getOrderListUseCase = instance(),

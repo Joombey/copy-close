@@ -8,4 +8,5 @@ interface OrderListActions {
     fun reject(orderID: String)
     fun info(orderUI: OrderUI)
     fun dismissInfo()
+    fun finish(orderID: String)
 }

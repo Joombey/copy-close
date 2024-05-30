@@ -43,4 +43,6 @@
     <string name="completed">Завершён</string>
     <string name="accepted">В работе</string>
     <string name="attachment_label">Прикреплённые файлы</string>
+    <string name="end_order">Закончить</string>
+    <string name="download">Скачать файлы</string>
 </resources>

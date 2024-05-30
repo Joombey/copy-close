@@ -4,6 +4,7 @@ import dev.farukh.copyclose.core.data.models.MediaInfo
 import dev.farukh.copyclose.core.utils.MediaManager
 import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.copyclose.core.utils.extensions.asNetworkError
+import dev.farukh.copyclose.core.utils.extensions.asResult
 import dev.farukh.copyclose.core.utils.extensions.asUnknownError
 import dev.farukh.copyclose.core.utils.extensions.hasUnSuccess
 import dev.farukh.network.core.UploadProgress
@@ -21,6 +22,9 @@ class FileRepository(
     private val fileService: FileService,
     mediaManager: MediaManager
 ) : MediaManager by mediaManager {
+    suspend fun getFileStream(id: String) = fileService.getDocument(id).asResult()
+    fun getDocUrl(id: String) = fileService.getDocumentUrl(id)
+
     suspend fun sendFiles(medias: List<MediaInfo>): Result<Flow<Pair<Float, List<String>>>, MediaInfo> {
         return coroutineScope {
             val sessionCreationResult = medias.map { media ->

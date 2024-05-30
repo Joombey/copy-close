@@ -1,10 +1,13 @@
 package dev.farukh.copyclose.features.order.list.ui.compose
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -35,15 +39,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.net.toUri
 import dev.farukh.copyclose.R
 import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.copyclose.features.order.creation.ui.compose.AttachedFile
 import dev.farukh.copyclose.features.order.creation.ui.compose.UserHeaderView
+import dev.farukh.copyclose.features.order.list.data.dto.Attachment
 import dev.farukh.copyclose.features.order.list.data.dto.OrderState
 import dev.farukh.copyclose.features.order.list.data.dto.Service
 import dev.farukh.copyclose.features.order.list.ui.OrderListActions
@@ -54,15 +61,26 @@ import dev.farukh.copyclose.features.order.list.ui.OrderUI
 fun OrderListView(
     uiState: OrderListUIState.OrderLoadedSate,
     actions: OrderListActions,
-    modifier: Modifier = Modifier
+    onChat: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val orderInfoOpened = uiState.orderInfoOpened
+    val context = LocalContext.current
     if (orderInfoOpened != null) {
         OrderInfoDialog(
             comment = orderInfoOpened.comment,
-            attachment = orderInfoOpened.attachments.map { it.name },
+            attachment = orderInfoOpened.attachments,
             services = uiState.orderInfoOpened!!.serviceList,
             onDismissRequest = actions::dismissInfo,
+            canDownload = orderInfoOpened.acceptable && orderInfoOpened.state == OrderState.STATE_ACCEPTED,
+            onDownload = { downloadUri ->
+                context.startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        downloadUri
+                    )
+                )
+            },
             modifier = Modifier.padding(UiUtils.containerPaddingDefault)
         )
     }
@@ -104,11 +122,18 @@ fun OrderListView(
                     }
 
                     OrderState.STATE_ACCEPTED -> {
-                        AcceptedWithChatButton(
-                            onChat = {
-
-                            }
-                        )
+                        if (!orderUI.acceptable) {
+                            ButtonWithChat(
+                                text = stringResource(id = R.string.accepted),
+                                onChat = { onChat(orderUI.orderID) }
+                            )
+                        } else {
+                            ButtonWithChat(
+                                text = stringResource(id = R.string.end_order),
+                                onChat = { onChat(orderUI.orderID) },
+                                onClick = { actions.finish(orderUI.orderID) }
+                            )
+                        }
                     }
 
                     OrderState.STATE_REJECTED -> {
@@ -127,6 +152,7 @@ fun OrderListView(
                     OrderState.STATE_COMPLETED -> {
                         OutlinedButton(
                             onClick = {},
+                            enabled = false,
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.outlinedButtonColors(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -142,9 +168,11 @@ fun OrderListView(
 }
 
 @Composable
-fun AcceptedWithChatButton(
+fun ButtonWithChat(
+    text: String,
     onChat: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
 ) {
     Row(
         modifier = modifier,
@@ -152,15 +180,15 @@ fun AcceptedWithChatButton(
         horizontalArrangement = Arrangement.spacedBy(UiUtils.arrangementDefault)
     ) {
         OutlinedButton(
-            onClick = {},
+            onClick = { onClick?.invoke() },
             modifier = Modifier.weight(1f),
-            enabled = false,
+            enabled = onClick != null,
             colors = ButtonDefaults.outlinedButtonColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 disabledContentColor = MaterialTheme.colorScheme.primary
             )
         ) {
-            Text(text = stringResource(id = R.string.accepted))
+            Text(text = text)
         }
         IconButton(onClick = onChat) {
             Icon(
@@ -249,8 +277,10 @@ fun TotalPriceWithInfoView(
 @Composable
 fun OrderInfoDialog(
     comment: String,
-    attachment: List<String>,
+    attachment: List<Attachment>,
     services: List<Service>,
+    canDownload: Boolean,
+    onDownload: (Uri) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     properties: DialogProperties = DialogProperties(),
@@ -287,7 +317,19 @@ fun OrderInfoDialog(
                     thickness = UiUtils.dividerThicknessDefault,
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
-                AttachmentsView(attachedFiles = attachment)
+                AttachmentsView(
+                    attachedFiles = attachment,
+                    content = { view, att ->
+                        view()
+                        if(canDownload) {
+                            IconButton(
+                                onClick = { onDownload(att.url.toUri()) }
+                            ) {
+                                Icon(Icons.Filled.Download, null)
+                            }
+                        }
+                    },
+                )
             }
             Row {
                 Text(stringResource(R.string.service_profile_title))
@@ -325,8 +367,9 @@ fun OrderInfoDialog(
 
 @Composable
 fun AttachmentsView(
-    attachedFiles: List<String>,
+    attachedFiles: List<Attachment>,
     modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.(@Composable () -> Unit, Attachment) -> Unit,
 ) {
     var containerSize by remember {
         mutableStateOf(Size.Zero)
@@ -340,14 +383,26 @@ fun AttachmentsView(
             items = attachedFiles,
             key = { index, _ -> index }
         ) { _, item ->
-            AttachedFile(
-                extension = item.split(".").last(),
-                name = item.split(".").first(),
+            Column(
                 modifier = Modifier
                     .width(150.dp)
-                    .padding(UiUtils.containerPaddingDefault)
-            )
-
+                    .padding(UiUtils.containerPaddingDefault),
+                verticalArrangement = Arrangement.spacedBy(UiUtils.arrangementDefault),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                content(
+                    {
+                        AttachedFile(
+                            extension = item.name.split(".").last(),
+                            name = item.name.split(".").first(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(UiUtils.containerPaddingDefault)
+                        )
+                    },
+                    item,
+                )
+            }
         }
     }
 }

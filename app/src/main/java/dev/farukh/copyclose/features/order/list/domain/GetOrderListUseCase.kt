@@ -5,6 +5,7 @@ import dev.farukh.copyclose.core.AppError
 import dev.farukh.copyclose.core.LocalError
 import dev.farukh.copyclose.core.NetworkError
 import dev.farukh.copyclose.core.data.dto.UserInfoDTO
+import dev.farukh.copyclose.core.data.repos.FileRepository
 import dev.farukh.copyclose.core.data.repos.OrderRepository
 import dev.farukh.copyclose.core.data.repos.UserRepository
 import dev.farukh.copyclose.core.utils.Result
@@ -19,6 +20,7 @@ import kotlinx.coroutines.coroutineScope
 class GetOrderListUseCase(
     private val orderRepository: OrderRepository,
     private val userRepository: UserRepository,
+    private val fileRepository: FileRepository
 ) {
     suspend operator fun invoke(): Result<Pair<List<OrderDTO>, List<OrderDTO>>, AppError> =
         coroutineScope {
@@ -117,7 +119,8 @@ class GetOrderListUseCase(
                         attachments = responseUserDataPair.first.attachments.map { attachment ->
                             Attachment(
                                 name = attachment.name,
-                                id = attachment.id
+                                id = attachment.id,
+                                url = fileRepository.getDocUrl(attachment.id)
                             )
                         }
                     )

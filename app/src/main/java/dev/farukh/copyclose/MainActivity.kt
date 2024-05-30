@@ -32,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import dev.farukh.copyclose.core.Screen
 import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.copyclose.features.auth.ui.compose.AuthScreen
+import dev.farukh.copyclose.features.chat.ui.compose.ChatScreen
 import dev.farukh.copyclose.features.map.ui.compose.MapScreen
 import dev.farukh.copyclose.features.order.creation.ui.compose.OrderCreationScreen
 import dev.farukh.copyclose.features.order.list.ui.compose.OrderListScreen
@@ -76,7 +77,7 @@ fun App() {
                     onOrders = { navController.navigateWithStateAndSingle(Screen.Orders(it).route) },
                     onProfile = {
                         val isProfile: Boolean = navController.currentDestination?.route?.contains("profile") == true
-                        val profileId: String = navController.currentBackStackEntry?.arguments?.getString("userID") ?: ""
+                        val profileId: String = navController.currentBackStackEntry?.arguments?.getString("id") ?: ""
                         if (isProfile && profileId == it) {
                             navController.navigateWithStateAndSingle(Screen.Profile(it).route)
                         } else {
@@ -121,6 +122,14 @@ fun App() {
                 arguments = Screen.Orders.args
             ) {
                 OrderListScreen(
+                    onChat = { orderID ->
+                        navController.navigateWithStateAndSingle(
+                            Screen.Chat(
+                                userID = activeUserID!!,
+                                orderID = orderID
+                            ).route
+                        )
+                    },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -129,7 +138,7 @@ fun App() {
                 route = Screen.Profile.route,
                 arguments = Screen.Profile.args
             ) { navBackStack ->
-                val userID = navBackStack.arguments!!.getString("userID")!!
+                val userID = navBackStack.arguments!!.getString("id")!!
                 ProfileScreen(
                     userID = userID,
                     onLogOut = { viewModel.logOut(activeUserID!!) },
@@ -144,7 +153,7 @@ fun App() {
                 route = Screen.OrderCreation.route,
                 arguments = Screen.OrderCreation.args
             ) { navBackStack ->
-                val sellerID = navBackStack.arguments!!.getString("userID")!!
+                val sellerID = navBackStack.arguments!!.getString("id")!!
                 OrderCreationScreen(
                     sellerID = sellerID,
                     onProfileClick = {
@@ -157,6 +166,19 @@ fun App() {
                         )
                     },
                     modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            composable(
+                route = Screen.Chat.route,
+                arguments = Screen.Chat.args
+            ) { navBackStack ->
+                val orderID = navBackStack.arguments!!.getString("orderID")!!
+                val userID = navBackStack.arguments!!.getString("userID")!!
+                ChatScreen(
+                    orderID = orderID,
+                    userId = userID,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
 

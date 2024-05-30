@@ -54,11 +54,15 @@ fun Toast(@StringRes stringID: Int) {
 }
 
 @Composable
-fun CircleImage(icon: ImageBitmap, size: Dp) {
+fun CircleImage(
+    icon: ImageBitmap,
+    size: Dp,
+    modifier: Modifier = Modifier
+) {
     Image(
         bitmap = icon,
         contentDescription = null,
-        modifier = Modifier
+        modifier = modifier
             .clip(CircleShape)
             .size(size),
         contentScale = ContentScale.Crop

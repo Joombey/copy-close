@@ -63,6 +63,8 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.okhttp)
 
+    implementation(libs.ktor.client.websockets)
+
     //serialization
     implementation(libs.kotlinx.serialization.json)
 
