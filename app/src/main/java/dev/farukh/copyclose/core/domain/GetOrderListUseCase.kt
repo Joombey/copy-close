@@ -1,10 +1,11 @@
-package dev.farukh.copyclose.features.order.list.domain
+package dev.farukh.copyclose.core.domain
 
 import android.util.Log
 import dev.farukh.copyclose.core.AppError
 import dev.farukh.copyclose.core.LocalError
 import dev.farukh.copyclose.core.NetworkError
 import dev.farukh.copyclose.core.data.dto.UserInfoDTO
+import dev.farukh.copyclose.core.data.models.Service
 import dev.farukh.copyclose.core.data.repos.FileRepository
 import dev.farukh.copyclose.core.data.repos.OrderRepository
 import dev.farukh.copyclose.core.data.repos.UserRepository
@@ -12,7 +13,6 @@ import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.copyclose.features.order.list.data.dto.Attachment
 import dev.farukh.copyclose.features.order.list.data.dto.OrderDTO
 import dev.farukh.copyclose.features.order.list.data.dto.OrderState
-import dev.farukh.copyclose.features.order.list.data.dto.Service
 import dev.farukh.network.services.copyClose.info.response.OrderInfo
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -122,7 +122,8 @@ class GetOrderListUseCase(
                                 id = attachment.id,
                                 url = fileRepository.getDocUrl(attachment.id)
                             )
-                        }
+                        },
+                        reported = responseUserDataPair.first.reported
                     )
                 }.toList()
 

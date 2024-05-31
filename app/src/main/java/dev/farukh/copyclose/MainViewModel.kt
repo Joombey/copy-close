@@ -3,11 +3,12 @@ package dev.farukh.copyclose
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.farukh.copyclose.core.data.repos.UserRepository
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val userRepository: UserRepository) : ViewModel() {
     val activeUser = userRepository.activeUser
-    fun makeUserActive(userID: String) = viewModelScope.launch {
+    fun makeUserActive(userID: String) = viewModelScope.async {
         userRepository.makeUserActive(userID)
     }
 

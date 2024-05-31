@@ -19,4 +19,6 @@ data class OrderInfo(
     val comment: String,
     @SerialName("state")
     val state: Int,
+    @SerialName("reported")
+    val reported: Boolean,
 )

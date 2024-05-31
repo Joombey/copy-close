@@ -25,6 +25,7 @@ interface AuthService {
     suspend fun register(
         registerRequest: RegisterRequest,
         image: ByteArray,
+        devKey: String?,
     ): RequestResult<RegisterResponse>
 }
 
@@ -46,14 +47,20 @@ internal class AuthServiceImpl(
     override suspend fun register(
         registerRequest: RegisterRequest,
         image: ByteArray,
+        devKey: String?,
     ) = client.commonPost(
         onResponse = { body<RegisterResponse>() },
         config = {
-            url("register")
+            url {
+                url("register")
+                if (devKey != null) {
+                    parameters["devKey"] = devKey
+                }
+            }
             contentType(ContentType.MultiPart.FormData)
             setBody(
                 MultiPartFormDataContent(
-                    formData{
+                    formData {
                         append(
                             key = "register",
                             value = json.encodeToString(registerRequest),

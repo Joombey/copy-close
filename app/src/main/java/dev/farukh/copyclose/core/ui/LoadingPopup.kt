@@ -70,7 +70,7 @@ fun LoadingPopup(
 }
 
 @Composable
-fun LoadingDialog(
+fun InfoDialog(
     modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit = {},
     properties: DialogProperties = DialogProperties(),

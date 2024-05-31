@@ -1,5 +1,6 @@
 package dev.farukh.network
 
+import dev.farukh.network.services.copyClose.admin.adminServiceDI
 import dev.farukh.network.services.copyClose.auth.copyCloseModule
 import dev.farukh.network.services.copyClose.chat.chatServiceDI
 import dev.farukh.network.services.copyClose.file.fileServiceDI
@@ -16,9 +17,10 @@ val networkDI by DI.Module {
     import(fileServiceDI)
     import(infoServiceDI)
     import(mapServiceDI)
-    import(yandexGeoSuggester)
-    import(yandexGeoCoderModule)
+    import(adminServiceDI)
     import(profileServiceDI)
     import(orderServiceDI)
     import(chatServiceDI)
+    import(yandexGeoSuggester)
+    import(yandexGeoCoderModule)
 }

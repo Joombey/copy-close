@@ -8,24 +8,26 @@ import dev.farukh.copyclose.core.utils.extensions.long
 import dev.farukh.network.core.AddressCore
 import dev.farukh.network.core.RoleCore
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class UserLocalDataSource(private val db: CopyCloseDB) {
-    val activeUser: Flow<String?> = db.userQueries.activeUser()
+    val activeUser = db.userQueries.activeUser()
         .asFlow()
         .mapToOneOrNull(Dispatchers.IO)
-        .map { it?.id }
+        .map { user ->
+            user?.id to (user?.let { getRole(it.roleID).canBan == 1L } ?: false)
+        }
         .distinctUntilChanged()
+
     suspend fun createOrUpdateUser(
         role: RoleCore,
         user: UserDTO,
         address: AddressCore,
     ) {
         withContext(Dispatchers.IO) {
-            if(db.addressQueries.addressExists(address.id!!).executeAsOne()) {
+            if (db.addressQueries.addressExists(address.id!!).executeAsOne()) {
                 db.addressQueries.updateAddress(
                     id = address.id!!,
                     addressName = address.addressName,
@@ -79,9 +81,10 @@ class UserLocalDataSource(private val db: CopyCloseDB) {
         }
     }
 
-    suspend fun checkImageValid(userID: String, imageID: String): Boolean = withContext(Dispatchers.IO){
-        db.userQueries.getIconByID(userID).executeAsOneOrNull() == imageID
-    }
+    suspend fun checkImageValid(userID: String, imageID: String): Boolean =
+        withContext(Dispatchers.IO) {
+            db.userQueries.getIconByID(userID).executeAsOneOrNull() == imageID
+        }
 
     suspend fun userExists(userID: String): Boolean = withContext(Dispatchers.IO) {
         db.userQueries.userExists(userID).executeAsOne()

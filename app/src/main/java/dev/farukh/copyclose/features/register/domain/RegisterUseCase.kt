@@ -23,6 +23,7 @@ class RegisterUseCase(
             password = registerDTO.password,
             address = registerDTO.address,
             isSeller = registerDTO.isSeller,
+            devKey = registerDTO.devKey,
             image = mediaRepository.bytesFromUri(registerDTO.image)!!.readBytes(),
         )
         return when (registerResult) {

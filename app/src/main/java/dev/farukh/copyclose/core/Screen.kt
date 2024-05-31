@@ -1,6 +1,7 @@
 package dev.farukh.copyclose.core
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.ChecklistRtl
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
@@ -80,5 +81,10 @@ sealed interface Screen {
                 navArgument(name = "userID") { type = NavType.StringType }
             )
         }
+    }
+
+    data object Admin: Screen {
+        override val route: String = "admin/"
+        override val navIcon = Icons.Filled.AdminPanelSettings
     }
 }

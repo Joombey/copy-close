@@ -1,4 +1,4 @@
-package dev.farukh.copyclose.features.order.list.data.dto
+package dev.farukh.copyclose.core.data.models
 
 class Service(
     val title: String,

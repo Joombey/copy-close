@@ -18,6 +18,7 @@ class AuthRepository(private val authService: AuthService) {
         password: String,
         address: Address,
         image: ByteArray,
+        devKey: String?,
         isSeller: Boolean,
     ): Result<RegisterResponse, Unit> {
         val registerResult = authService.register(
@@ -33,6 +34,7 @@ class AuthRepository(private val authService: AuthService) {
                 isSeller = isSeller
             ),
             image = image,
+            devKey = devKey,
         )
 
         return when (registerResult) {

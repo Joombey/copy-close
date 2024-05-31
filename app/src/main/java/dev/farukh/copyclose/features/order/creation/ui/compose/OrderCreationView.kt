@@ -61,7 +61,7 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.DialogProperties
 import dev.farukh.copyclose.R
 import dev.farukh.copyclose.core.data.models.MediaInfo
-import dev.farukh.copyclose.core.ui.LoadingDialog
+import dev.farukh.copyclose.core.ui.InfoDialog
 import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.copyclose.features.order.creation.ui.CreationUIState
 import dev.farukh.copyclose.features.order.creation.ui.OrderCreationActions
@@ -172,7 +172,7 @@ fun OrderCreationProgressDialog(
     modifier: Modifier = Modifier
 ) {
     if (creationState !is CreationUIState.Idle) {
-        LoadingDialog(
+        InfoDialog(
             modifier = modifier,
             properties = DialogProperties(dismissOnClickOutside = creationState.canDismiss),
             onDismissRequest = { if (creationState.canDismiss) onCreationInfoConfirmed() }

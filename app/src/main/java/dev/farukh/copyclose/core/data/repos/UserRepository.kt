@@ -100,6 +100,7 @@ class UserRepository(
                 )
         }
 
+    suspend fun getRole(id: Int) = localDataSource.getRole(id)
     suspend fun getActiveUser() = localDataSource.getActiveUser()
     suspend fun editProfile(
         idsToDelete: MutableList<String>,

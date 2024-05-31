@@ -78,6 +78,7 @@ class RegisterViewModel(
             address = uiState.queryUIState.chosenAddress ?: return@launch,
             image = _uiState.userIconUri ?: return@launch,
             isSeller = uiState.isSeller,
+            devKey = if (_uiState.haveDevKey) uiState.devKey else null
         )
         when (val result = registerUseCase(registerDTO)) {
             is Result.Error -> {
@@ -94,6 +95,19 @@ class RegisterViewModel(
                     _uiState.networkErr = null
                 }
             }
+        }
+    }
+
+    fun haveDevKey() {
+        _uiState.haveDevKey = !_uiState.haveDevKey
+        _uiState.devKey = ""
+    }
+
+    fun setDevKey(value: String) {
+        if (_uiState.haveDevKey) {
+            _uiState.devKey = value
+        } else {
+            _uiState.devKey = ""
         }
     }
 
@@ -136,6 +150,9 @@ private class RegisterScreenUIStateMutable : RegisterScreenUIState {
     var userIconUri: Uri? = null
     override var userIcon: ImageBitmap? by mutableStateOf(null)
     override var networkErr: NetworkErr? by mutableStateOf(null)
+
+    override var devKey by mutableStateOf("")
+    override var haveDevKey by mutableStateOf(false)
 }
 
 private class QueryUIStateMutable : QueryUIState {
@@ -163,6 +180,9 @@ interface RegisterScreenUIState {
 
     val registered: Boolean
     val networkErr: NetworkErr?
+
+    val haveDevKey: Boolean
+    val devKey: String
 }
 
 @Stable

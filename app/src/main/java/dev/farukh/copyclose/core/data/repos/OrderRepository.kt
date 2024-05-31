@@ -8,6 +8,7 @@ import dev.farukh.copyclose.features.order.list.data.dto.OrderState
 import dev.farukh.network.services.copyClose.info.InfoService
 import dev.farukh.network.services.copyClose.order.OrderService
 import dev.farukh.network.services.copyClose.order.request.OrderCreationRequest
+import dev.farukh.network.services.copyClose.order.request.ReportRequest
 
 class OrderRepository(
     private val orderService: OrderService,
@@ -45,4 +46,5 @@ class OrderRepository(
         state = state.ordinal
     ).asResult()
 
+    suspend fun reportOrder(request: ReportRequest) = orderService.sendReport(request).asResult()
 }

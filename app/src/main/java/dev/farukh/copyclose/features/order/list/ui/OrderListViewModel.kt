@@ -9,13 +9,14 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.farukh.copyclose.core.data.models.Service
+import dev.farukh.copyclose.core.domain.GetOrderListUseCase
 import dev.farukh.copyclose.core.utils.Result
 import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.copyclose.features.order.list.data.dto.Attachment
 import dev.farukh.copyclose.features.order.list.data.dto.OrderDTO
 import dev.farukh.copyclose.features.order.list.data.dto.OrderState
-import dev.farukh.copyclose.features.order.list.data.dto.Service
-import dev.farukh.copyclose.features.order.list.domain.GetOrderListUseCase
+import dev.farukh.copyclose.features.order.list.domain.ReportUseCase
 import dev.farukh.copyclose.features.order.list.domain.UpdateOrderStateUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,17 +25,18 @@ import kotlinx.coroutines.withContext
 class OrderListViewModel(
     private val getOrderListUseCase: GetOrderListUseCase,
     private val updateOrderStateUseCase: UpdateOrderStateUseCase,
+    private val reportUseCase: ReportUseCase,
 ) : ViewModel(), OrderListActions {
     private var _state by mutableStateOf<OrderListUIState>(OrderListUIState.Loading)
     val state: OrderListUIState get() = _state
 
     init {
-        getOrders()
+        fetchOrders()
     }
 
-    fun getOrders() {
-        viewModelScope.launch {
-            when (val ordersResult = (getOrderListUseCase.invoke())) {
+    private fun fetchOrders() {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val ordersResult = (getOrderListUseCase())) {
                 is Result.Error -> _state = OrderListUIState.Error
                 is Result.Success -> {
                     val groupedOrders = groupResult(ordersResult.data)
@@ -46,6 +48,13 @@ class OrderListViewModel(
                     }
                 }
             }
+        }
+    }
+
+    fun getOrders() {
+        viewModelScope.launch {
+            _state = OrderListUIState.Loading
+            getOrders()
         }
     }
 
@@ -61,6 +70,34 @@ class OrderListViewModel(
         updateState(orderID, OrderState.STATE_COMPLETED)
     }
 
+    override fun openReport(orderUI: OrderUI) {
+        (_state as? OrderLoadedStateMutable)?._dialogState = ReportingMutable("", orderUI)
+    }
+
+    override fun report() {
+        viewModelScope.launch(Dispatchers.IO) {
+            ((_state as? OrderLoadedStateMutable)?._dialogState as? ReportingMutable)?.apply {
+                sending = true
+                val result = reportUseCase(orderUI.orderID, message)
+                when (result) {
+                    is Result.Error -> _state = OrderListUIState.Error
+                    is Result.Success -> {
+                        fetchOrders()
+                        sending = false
+                    }
+                }
+            }
+        }.invokeOnCompletion {
+            (_state as? OrderLoadedStateMutable)?._dialogState = OrderListDialogState.None
+        }
+    }
+
+    override fun setDialogMessage(message: String) {
+        ((_state as? OrderLoadedStateMutable)?._dialogState as? ReportingMutable)?.apply {
+            this.message = message
+        }
+    }
+
     private fun updateState(orderId: String, orderState: OrderState) {
         viewModelScope.launch(Dispatchers.IO) {
             val updateResult = updateOrderStateUseCase(
@@ -69,17 +106,17 @@ class OrderListViewModel(
             )
             when (updateResult) {
                 is Result.Error -> {}
-                is Result.Success -> getOrders()
+                is Result.Success -> fetchOrders()
             }
         }
     }
 
     override fun info(orderUI: OrderUI) {
-        (_state as? OrderLoadedStateMutable)?.orderInfoOpened = orderUI
+        (_state as? OrderLoadedStateMutable)?._dialogState = OrderListDialogState.OrderInfo(orderUI)
     }
 
-    override fun dismissInfo() {
-        (_state as? OrderLoadedStateMutable)?.orderInfoOpened = null
+    override fun dismissDialog() {
+        (_state as? OrderLoadedStateMutable)?._dialogState = OrderListDialogState.None
     }
 
     private suspend fun groupResult(orderResult: Pair<List<OrderDTO>, List<OrderDTO>>) =
@@ -97,7 +134,8 @@ class OrderListViewModel(
                 comment = dto.comment,
                 attachments = dto.attachments,
                 acceptable = false,
-                state = dto.state
+                state = dto.state,
+                reported = dto.reported
             )
         }.toMutableList().apply {
             addAll(
@@ -115,7 +153,8 @@ class OrderListViewModel(
                         comment = dto.comment,
                         attachments = dto.attachments,
                         acceptable = true,
-                        state = dto.state
+                        state = dto.state,
+                        reported = dto.reported
                     )
                 }
             )
@@ -124,11 +163,29 @@ class OrderListViewModel(
         }.flatMap { it.value }
 }
 
+sealed interface OrderListDialogState {
+    data object None : OrderListDialogState
+    class OrderInfo(val orderUI: OrderUI) : OrderListDialogState
+    interface Reporting : OrderListDialogState {
+        val orderUI: OrderUI
+        val sending: Boolean
+        val message: String
+    }
+}
+
+private class ReportingMutable(
+    message: String,
+    override val orderUI: OrderUI
+) : OrderListDialogState.Reporting {
+    override var message by mutableStateOf(message)
+    override var sending by mutableStateOf(false)
+}
+
 sealed interface OrderListUIState {
     data object Loading : OrderListUIState
     data object Error : OrderListUIState
     interface OrderLoadedSate : OrderListUIState {
-        val orderInfoOpened: OrderUI?
+        val dialogState: OrderListDialogState
         val orders: List<OrderUI>
     }
 }
@@ -136,9 +193,10 @@ sealed interface OrderListUIState {
 @Stable
 private class OrderLoadedStateMutable(
     initialState: List<OrderUI> = emptyList(),
-    initialOrderInfoOpened: OrderUI? = null,
+    initialDialogState: OrderListDialogState = OrderListDialogState.None
 ) : OrderListUIState.OrderLoadedSate {
-    override var orderInfoOpened: OrderUI? by mutableStateOf(initialOrderInfoOpened)
+    var _dialogState by mutableStateOf<OrderListDialogState>(initialDialogState)
+    override val dialogState get() = _dialogState
 
     val ordersMutable = initialState.toMutableStateList()
     override val orders: List<OrderUI> = ordersMutable
@@ -157,4 +215,5 @@ data class OrderUI(
     val attachments: List<Attachment>,
     val acceptable: Boolean,
     val state: OrderState,
+    val reported: Boolean
 )

@@ -1,6 +1,7 @@
 package dev.farukh.copyclose
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -31,6 +34,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import dev.farukh.copyclose.core.Screen
 import dev.farukh.copyclose.core.utils.UiUtils
+import dev.farukh.copyclose.features.admin.ui.compose.AdminScreen
 import dev.farukh.copyclose.features.auth.ui.compose.AuthScreen
 import dev.farukh.copyclose.features.chat.ui.compose.ChatScreen
 import dev.farukh.copyclose.features.map.ui.compose.MapScreen
@@ -39,6 +43,7 @@ import dev.farukh.copyclose.features.order.list.ui.compose.OrderListScreen
 import dev.farukh.copyclose.features.profile.ui.compose.ProfileScreen
 import dev.farukh.copyclose.features.register.ui.compose.RegisterScreen
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberViewModel
 import org.kodein.di.compose.withDI
@@ -59,8 +64,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
+
     val viewModel: MainViewModel by rememberViewModel()
-    val activeUserID by viewModel.activeUser.collectAsStateWithLifecycle(initialValue = null)
+    val userBannerPair by viewModel.activeUser.collectAsStateWithLifecycle(initialValue = null)
+    val activeUserID = userBannerPair?.first
+    val canSell = userBannerPair?.second
+    Log.i("sell", "App: $canSell")
+
     val scope = rememberCoroutineScope()
 
     LaunchAuthCheck(
@@ -75,9 +85,16 @@ fun App() {
                     selectedScreen = Screen.Splash,
                     onMap = { navController.navigateWithStateAndSingle(Screen.Map.route) },
                     onOrders = { navController.navigateWithStateAndSingle(Screen.Orders(it).route) },
+                    shouldShowAdmin = canSell ?: false,
+                    onAdmin = {
+                        navController.navigateWithStateAndSingle(Screen.Admin.route)
+                    },
+                    onLogout = { viewModel.logOut(activeUserID) },
                     onProfile = {
-                        val isProfile: Boolean = navController.currentDestination?.route?.contains("profile") == true
-                        val profileId: String = navController.currentBackStackEntry?.arguments?.getString("id") ?: ""
+                        val isProfile: Boolean =
+                            navController.currentDestination?.route?.contains("profile") == true
+                        val profileId: String =
+                            navController.currentBackStackEntry?.arguments?.getString("id") ?: ""
                         if (isProfile && profileId == it) {
                             navController.navigateWithStateAndSingle(Screen.Profile(it).route)
                         } else {
@@ -100,7 +117,11 @@ fun App() {
                 onLoginSuccess = { userID ->
                     scope.launch {
                         viewModel.makeUserActive(userID).join()
-                        navController.navigateWithStateAndSingle(Screen.Map.route)
+                        if (viewModel.activeUser.first { it.first != null }.second) {
+                            navController.navigateWithStateAndSingle(Screen.Admin.route)
+                        } else {
+                            navController.navigateWithStateAndSingle(Screen.Map.route)
+                        }
                     }
                 },
                 onRegisterPress = { navController.navigateWithStateAndSingle(Screen.AuthGraph.Register.route) },
@@ -183,6 +204,13 @@ fun App() {
             }
 
             composable(
+                route = Screen.Admin.route,
+                arguments = Screen.Admin.args,
+            ) {
+                AdminScreen(modifier = Modifier.fillMaxSize())
+            }
+
+            composable(
                 route = Screen.Splash.route,
                 arguments = Screen.Splash.args
             ) { AppSplash() }
@@ -240,43 +268,69 @@ fun MapBottomNav(
     onMap: () -> Unit,
     onOrders: () -> Unit,
     onProfile: () -> Unit,
+    onAdmin: () -> Unit,
+    onLogout: () -> Unit,
+    shouldShowAdmin: Boolean,
     modifier: Modifier = Modifier
 ) {
     BottomAppBar(modifier) {
-        NavigationBarItem(
-            selected = selectedScreen is Screen.Map,
-            onClick = { if (selectedScreen !is Screen.Map) onMap() },
-            icon = { Icon(Screen.Map.navIcon, null) },
-            label = { Text(stringResource(id = R.string.map)) },
-        )
+        if (shouldShowAdmin) {
+            NavigationBarItem(
+                selected = selectedScreen is Screen.Admin,
+                onClick = { if (selectedScreen !is Screen.Admin) onAdmin() },
+                icon = { Icon(Screen.Admin.navIcon, null) },
+                label = { Text(stringResource(id = R.string.admin)) },
+            )
 
-        NavigationBarItem(
-            selected = selectedScreen is Screen.Orders,
-            onClick = { if (selectedScreen !is Screen.Orders) onOrders() },
-            icon = { Icon(Screen.Orders.navIcon, null) },
-            label = { Text(stringResource(id = R.string.orders)) }
-        )
+            NavigationBarItem(
+                selected = false,
+                onClick = onLogout,
+                icon = { Icon(Icons.AutoMirrored.Filled.Logout, null) },
+                label = { Text(stringResource(id = R.string.log_out)) },
+            )
+        } else {
+            NavigationBarItem(
+                selected = selectedScreen is Screen.Map,
+                onClick = { if (selectedScreen !is Screen.Map) onMap() },
+                icon = { Icon(Screen.Map.navIcon, null) },
+                label = { Text(stringResource(id = R.string.map)) },
+            )
 
-        NavigationBarItem(
-            selected = selectedScreen is Screen.Profile,
-            onClick = { if (selectedScreen !is Screen.Profile) onProfile() },
-            icon = { Icon(Screen.Profile.navIcon, null) },
-            label = { Text(stringResource(id = R.string.profile)) }
-        )
+            NavigationBarItem(
+                selected = selectedScreen is Screen.Orders,
+                onClick = { if (selectedScreen !is Screen.Orders) onOrders() },
+                icon = { Icon(Screen.Orders.navIcon, null) },
+                label = { Text(stringResource(id = R.string.orders)) }
+            )
+
+            NavigationBarItem(
+                selected = selectedScreen is Screen.Profile,
+                onClick = { if (selectedScreen !is Screen.Profile) onProfile() },
+                icon = { Icon(Screen.Profile.navIcon, null) },
+                label = { Text(stringResource(id = R.string.profile)) }
+            )
+        }
     }
 }
 
 @Composable
 fun LaunchAuthCheck(
     navController: NavController,
-    source: Flow<String?>
+    source: Flow<Pair<String?, Boolean>>
 ) {
     LaunchedEffect(Unit) {
         source.collect { userID ->
-            if (userID == null && navController.currentBackStackEntry?.destination?.route?.contains(Screen.AuthGraph.route) == false) {
+            if (userID.first == null && navController.currentBackStackEntry?.destination?.route?.contains(
+                    Screen.AuthGraph.route
+                ) == false
+            ) {
                 navController.navigateWithStateAndSingle(Screen.AuthGraph.Auth.route)
-            } else if (userID != null && navController.currentDestination?.route == Screen.Splash.route) {
-                navController.navigateWithStateAndSingle(Screen.Map.route)
+            } else if (userID.first != null && navController.currentDestination?.route == Screen.Splash.route) {
+                if (userID.second) {
+                    navController.navigateWithStateAndSingle(Screen.Admin.route)
+                } else {
+                    navController.navigateWithStateAndSingle(Screen.Map.route)
+                }
             }
         }
     }

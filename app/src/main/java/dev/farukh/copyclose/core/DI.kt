@@ -11,6 +11,7 @@ import dev.farukh.copyclose.core.data.repos.OrderRepository
 import dev.farukh.copyclose.core.data.repos.UserRepository
 import dev.farukh.copyclose.core.data.source.UserLocalDataSource
 import dev.farukh.copyclose.core.data.source.UserRemoteDataSource
+import dev.farukh.copyclose.core.domain.GetOrderListUseCase
 import dev.farukh.copyclose.core.utils.MediaManager
 import dev.farukh.copyclose.core.utils.MediaManagerImpl
 import dev.farukh.network.networkDI
@@ -42,6 +43,14 @@ internal fun coreDI(appDI: DI) = DI {
     bindProvider { FileRepository(instance(), instance()) }
 
     bindProvider { OrderRepository(instance(), instance()) }
+
+    bindProvider {
+        GetOrderListUseCase(
+            orderRepository = instance(),
+            userRepository = instance(),
+            fileRepository = instance()
+        )
+    }
 
     //ViewModels
     bindProvider { MainViewModel( instance() ) }

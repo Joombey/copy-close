@@ -39,12 +39,13 @@ fun RegisterScreen(
         IconChooserView(
             icon = viewModel.uiState.userIcon,
             onChoose = viewModel::chooseIcon,
-            modifier = Modifier.size(150.dp),
+            modifier = Modifier.size(75.dp),
         )
 
         IsSellerCheckbox(
             checked = viewModel.uiState.isSeller,
-            onCheckedChange = viewModel::sellerChange
+            onCheckedChange = viewModel::sellerChange,
+            modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
@@ -100,6 +101,29 @@ fun RegisterScreen(
                 .weight(1f)
         )
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(text = stringResource(R.string.has_secret_key))
+            Checkbox(
+                checked = viewModel.uiState.haveDevKey,
+                onCheckedChange = { viewModel.haveDevKey() }
+            )
+        }
+
+        if (viewModel.uiState.haveDevKey) {
+            OutlinedTextField(
+                value = viewModel.uiState.devKey,
+                onValueChange = viewModel::setDevKey,
+                label = {
+                    Text(stringResource(id = R.string.dev_key))
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
         OutlinedButton(
             onClick = viewModel::register
         ) {
@@ -115,9 +139,9 @@ fun IsSellerCheckbox(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween
-    ){
+    ) {
         Text(text = stringResource(id = R.string.is_seller))
         Checkbox(checked = checked, onCheckedChange = onCheckedChange)
     }

@@ -7,6 +7,9 @@ interface OrderListActions {
     fun accept(orderID: String)
     fun reject(orderID: String)
     fun info(orderUI: OrderUI)
-    fun dismissInfo()
+    fun dismissDialog()
     fun finish(orderID: String)
+    fun openReport(orderUI: OrderUI)
+    fun report()
+    fun setDialogMessage(message: String)
 }

@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,13 +48,15 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
 import dev.farukh.copyclose.R
+import dev.farukh.copyclose.core.data.models.Service
+import dev.farukh.copyclose.core.ui.InfoDialog
 import dev.farukh.copyclose.core.utils.UiUtils
 import dev.farukh.copyclose.features.order.creation.ui.compose.AttachedFile
 import dev.farukh.copyclose.features.order.creation.ui.compose.UserHeaderView
 import dev.farukh.copyclose.features.order.list.data.dto.Attachment
 import dev.farukh.copyclose.features.order.list.data.dto.OrderState
-import dev.farukh.copyclose.features.order.list.data.dto.Service
 import dev.farukh.copyclose.features.order.list.ui.OrderListActions
+import dev.farukh.copyclose.features.order.list.ui.OrderListDialogState
 import dev.farukh.copyclose.features.order.list.ui.OrderListUIState
 import dev.farukh.copyclose.features.order.list.ui.OrderUI
 
@@ -64,25 +67,40 @@ fun OrderListView(
     onChat: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val orderInfoOpened = uiState.orderInfoOpened
+    val dialogState = uiState.dialogState
     val context = LocalContext.current
-    if (orderInfoOpened != null) {
-        OrderInfoDialog(
-            comment = orderInfoOpened.comment,
-            attachment = orderInfoOpened.attachments,
-            services = uiState.orderInfoOpened!!.serviceList,
-            onDismissRequest = actions::dismissInfo,
-            canDownload = orderInfoOpened.acceptable && orderInfoOpened.state == OrderState.STATE_ACCEPTED,
-            onDownload = { downloadUri ->
-                context.startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        downloadUri
+    when (dialogState) {
+        OrderListDialogState.None -> {
+        }
+
+        is OrderListDialogState.OrderInfo -> {
+            val orderInfoOpened = dialogState.orderUI
+            OrderInfoDialog(
+                comment = orderInfoOpened.comment,
+                attachment = orderInfoOpened.attachments,
+                services = orderInfoOpened.serviceList,
+                onDismissRequest = actions::dismissDialog,
+                canDownload = orderInfoOpened.acceptable && orderInfoOpened.state == OrderState.STATE_ACCEPTED,
+                onDownload = { downloadUri ->
+                    context.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            downloadUri
+                        )
                     )
-                )
-            },
-            modifier = Modifier.padding(UiUtils.containerPaddingDefault)
-        )
+                },
+                modifier = Modifier.padding(UiUtils.containerPaddingDefault)
+            )
+        }
+
+        is OrderListDialogState.Reporting -> {
+            ReportDialog(
+                text = dialogState.message,
+                onTextChange = actions::setDialogMessage,
+                onReport = actions::report,
+                onDismissRequest = actions::dismissDialog
+            )
+        }
     }
     LazyColumn(
         modifier = modifier,
@@ -151,14 +169,24 @@ fun OrderListView(
 
                     OrderState.STATE_COMPLETED -> {
                         OutlinedButton(
-                            onClick = {},
-                            enabled = false,
+                            onClick = {
+                                if (!orderUI.acceptable && !orderUI.reported) {
+                                    actions.openReport(orderUI)
+                                }
+                            },
+                            enabled = !orderUI.acceptable && !orderUI.reported,
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.outlinedButtonColors(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                             )
                         ) {
-                            Text(text = stringResource(R.string.completed))
+                            Text(
+                                text = if (orderUI.acceptable || orderUI.reported) {
+                                    stringResource(R.string.completed)
+                                } else {
+                                    stringResource(id = R.string.report)
+                                }
+                            )
                         }
                     }
                 }
@@ -275,6 +303,37 @@ fun TotalPriceWithInfoView(
 }
 
 @Composable
+fun ReportDialog(
+    text: String,
+    onTextChange: (String) -> Unit,
+    onReport: () -> Unit,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    InfoDialog(
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        properties = DialogProperties(),
+    ) {
+        Text(
+            text = stringResource(id = R.string.report_label),
+            style = MaterialTheme.typography.labelLarge
+        )
+        OutlinedTextField(
+            value = text,
+            onValueChange = onTextChange,
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedButton(
+            onClick = onReport,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = stringResource(id = R.string.report))
+        }
+    }
+}
+
+@Composable
 fun OrderInfoDialog(
     comment: String,
     attachment: List<Attachment>,
@@ -321,7 +380,7 @@ fun OrderInfoDialog(
                     attachedFiles = attachment,
                     content = { view, att ->
                         view()
-                        if(canDownload) {
+                        if (canDownload) {
                             IconButton(
                                 onClick = { onDownload(att.url.toUri()) }
                             ) {

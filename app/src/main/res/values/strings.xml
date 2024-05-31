@@ -45,4 +45,13 @@
     <string name="attachment_label">Прикреплённые файлы</string>
     <string name="end_order">Закончить</string>
     <string name="download">Скачать файлы</string>
+    <string name="report">Пожаловаться</string>
+    <string name="report_label">Жалоба</string>
+    <string name="date">Дата: %s</string>
+    <string name="decline">Отклонить</string>
+    <string name="block">Заблокировать</string>
+    <string name="has_secret_key">Есть секретный ключ ?</string>
+    <string name="dev_key">Секретный ключ</string>
+    <string name="admin">Адимнистрирование</string>
+    <string name="report_message_label">Комментарий к жалобе</string>
 </resources>

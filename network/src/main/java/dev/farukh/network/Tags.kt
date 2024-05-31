@@ -2,6 +2,7 @@ package dev.farukh.network
 
 object Tags {
     const val COPY_CLOSE = "COPY CLOSE"
+    const val COPY_CLOSE_ADMIN = "CCADMIN"
     const val COPY_CLOSE_FILE = "CCFile"
     const val COPY_CLOSE_CHAT = "CCChat"
     const val COPY_CLOSE_INFO = "CCInfo"
