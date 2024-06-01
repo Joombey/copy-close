@@ -54,4 +54,5 @@
     <string name="dev_key">Секретный ключ</string>
     <string name="admin">Адимнистрирование</string>
     <string name="report_message_label">Комментарий к жалобе</string>
+    <string name="auth_label">Авторизация</string>
 </resources>
