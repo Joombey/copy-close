@@ -71,6 +71,7 @@ class RegisterViewModel(
     }
 
     fun register() = viewModelScope.launch(Dispatchers.IO) {
+        if (uiState.password.length < 8 && uiState.password[0].isDigit()) return@launch
         val registerDTO = RegisterDTO(
             login = uiState.login,
             password = uiState.password,
