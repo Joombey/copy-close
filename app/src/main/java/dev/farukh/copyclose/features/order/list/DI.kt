@@ -28,7 +28,8 @@ fun orderListDI(parentDI: DI) = DI {
         OrderListViewModel(
             getOrderListUseCase = instance(),
             updateOrderStateUseCase = instance(),
-            reportUseCase = instance()
+            reportUseCase = instance(),
+            orderService = instance()
         )
     }
 }

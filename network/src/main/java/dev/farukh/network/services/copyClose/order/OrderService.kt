@@ -6,10 +6,13 @@ import dev.farukh.network.utils.RequestResult
 import dev.farukh.network.utils.commonGet
 import dev.farukh.network.utils.commonPost
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 interface OrderService {
     suspend fun createOrder(request: OrderCreationRequest): RequestResult<Unit>
@@ -20,6 +23,8 @@ interface OrderService {
         orderId: String,
         state: Int
     ): RequestResult<Unit>
+
+    suspend fun listen(): Flow<Unit>
 }
 
 internal class OrderServiceImpl(val client: HttpClient) : OrderService {
@@ -61,4 +66,17 @@ internal class OrderServiceImpl(val client: HttpClient) : OrderService {
             }
         }
     )
+
+    override suspend fun listen(): Flow<Unit> = flow {
+        client.webSocket(
+            request = {
+                url("listen")
+            },
+            block = {
+                for (frame in incoming) {
+                    emit(Unit)
+                }
+            }
+        )
+    }
 }

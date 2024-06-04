@@ -102,6 +102,7 @@ fun UserTextMessage(
                             shape = MaterialTheme.shapes.medium
                         )
                         .padding(10.dp)
+                        .weight(1f)
                 )
                 Spacer(modifier = Modifier.padding(UiUtils.arrangementDefault / 4))
                 UserChatIcon(icon = chatMessage.icon, name = chatMessage.name)
@@ -124,6 +125,7 @@ fun UserTextMessage(
                             shape = MaterialTheme.shapes.medium
                         )
                         .padding(10.dp)
+                        .weight(1f)
                 )
             }
             Spacer(modifier = Modifier.weight(1f))

@@ -18,6 +18,7 @@ import dev.farukh.copyclose.features.order.list.data.dto.OrderDTO
 import dev.farukh.copyclose.features.order.list.data.dto.OrderState
 import dev.farukh.copyclose.features.order.list.domain.ReportUseCase
 import dev.farukh.copyclose.features.order.list.domain.UpdateOrderStateUseCase
+import dev.farukh.network.services.copyClose.order.OrderService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -26,35 +27,24 @@ class OrderListViewModel(
     private val getOrderListUseCase: GetOrderListUseCase,
     private val updateOrderStateUseCase: UpdateOrderStateUseCase,
     private val reportUseCase: ReportUseCase,
+    private val orderService: OrderService,
 ) : ViewModel(), OrderListActions {
     private var _state by mutableStateOf<OrderListUIState>(OrderListUIState.Loading)
     val state: OrderListUIState get() = _state
 
     init {
-        fetchOrders()
+        connect()
     }
 
-    private fun fetchOrders() {
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val ordersResult = (getOrderListUseCase())) {
-                is Result.Error -> _state = OrderListUIState.Error
-                is Result.Success -> {
-                    val groupedOrders = groupResult(ordersResult.data)
-                    (_state as? OrderLoadedStateMutable)?.apply {
-                        ordersMutable.clear()
-                        ordersMutable.addAll(groupedOrders)
-                    } ?: run {
-                        _state = OrderLoadedStateMutable(initialState = groupedOrders)
-                    }
-                }
-            }
-        }
+    fun connect() {
+        fetchOrders()
+        listen()
     }
 
     fun getOrders() {
         viewModelScope.launch {
             _state = OrderListUIState.Loading
-            getOrders()
+            connect()
         }
     }
 
@@ -82,7 +72,7 @@ class OrderListViewModel(
                 when (result) {
                     is Result.Error -> _state = OrderListUIState.Error
                     is Result.Success -> {
-                        fetchOrders()
+//                        fetchOrders()
                         sending = false
                     }
                 }
@@ -98,6 +88,43 @@ class OrderListViewModel(
         }
     }
 
+    override fun info(orderUI: OrderUI) {
+        (_state as? OrderLoadedStateMutable)?._dialogState = OrderListDialogState.OrderInfo(orderUI)
+    }
+
+    override fun dismissDialog() {
+        (_state as? OrderLoadedStateMutable)?._dialogState = OrderListDialogState.None
+    }
+
+    private fun listen() {
+        viewModelScope.launch {
+            try {
+                orderService.listen().collect {
+                    fetchOrders()
+                }
+            } catch (e: Exception) {
+                _state = OrderListUIState.Error
+            }
+        }
+    }
+
+    private fun fetchOrders() {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val ordersResult = (getOrderListUseCase())) {
+                is Result.Error -> _state = OrderListUIState.Error
+                is Result.Success -> {
+                    val groupedOrders = groupResult(ordersResult.data)
+                    (_state as? OrderLoadedStateMutable)?.apply {
+                        ordersMutable.clear()
+                        ordersMutable.addAll(groupedOrders)
+                    } ?: run {
+                        _state = OrderLoadedStateMutable(initialState = groupedOrders)
+                    }
+                }
+            }
+        }
+    }
+
     private fun updateState(orderId: String, orderState: OrderState) {
         viewModelScope.launch(Dispatchers.IO) {
             val updateResult = updateOrderStateUseCase(
@@ -109,14 +136,6 @@ class OrderListViewModel(
                 is Result.Success -> fetchOrders()
             }
         }
-    }
-
-    override fun info(orderUI: OrderUI) {
-        (_state as? OrderLoadedStateMutable)?._dialogState = OrderListDialogState.OrderInfo(orderUI)
-    }
-
-    override fun dismissDialog() {
-        (_state as? OrderLoadedStateMutable)?._dialogState = OrderListDialogState.None
     }
 
     private suspend fun groupResult(orderResult: Pair<List<OrderDTO>, List<OrderDTO>>) =
