@@ -321,7 +321,8 @@ fun AttachFileView(
                     openFileLauncher.launch(
                         arrayOf(
                             "application/pdf",
-                            "application/msword"
+                            "application/msword",
+                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                         )
                     )
                 },
@@ -361,7 +362,8 @@ fun AttachFileView(
                             openFileLauncher.launch(
                                 arrayOf(
                                     "application/pdf",
-                                    "application/msword"
+                                    "application/msword",
+                                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                 )
                             )
                         },

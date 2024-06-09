@@ -36,7 +36,7 @@ fun ChatScreen(
                     uiState = uiState,
                     onSend = viewModel::sendMessage,
                     onTextChange = viewModel::setText,
-                    modifier = modifier,
+                    modifier = Modifier.matchParentSize(),
                 )
             }
         }

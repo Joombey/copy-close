@@ -2,6 +2,7 @@ package dev.farukh.copyclose.features.chat.ui.compose
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,15 +40,18 @@ fun ChatView(
 ) {
     val listState = rememberLazyListState()
     LaunchedEffect(key1 = uiState.messages.size) {
-        listState.animateScrollToItem(uiState.messages.lastIndex)
+        if (uiState.messages.isNotEmpty()) {
+            listState.animateScrollToItem(uiState.messages.lastIndex)
+        }
     }
 
     Column(
         modifier = modifier
     ) {
         LazyColumn(
-            modifier = modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(UiUtils.arrangementDefault)
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(UiUtils.arrangementDefault),
+            state = listState
         ) {
             itemsIndexed(
                 items = uiState.messages,
@@ -82,7 +86,6 @@ fun UserTextMessage(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top
     ) {
         if (chatMessage.mine) {
@@ -92,41 +95,44 @@ fun UserTextMessage(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.Top
             ) {
-                Text(
-                    text = chatMessage.text,
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.medium)
-                        .border(
-                            width = UiUtils.borderWidthDefault / 2,
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = MaterialTheme.shapes.medium
-                        )
-                        .padding(10.dp)
-                        .weight(1f)
-                )
-                Spacer(modifier = Modifier.padding(UiUtils.arrangementDefault / 4))
+                Box(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = chatMessage.text,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .clip(MaterialTheme.shapes.medium)
+                            .border(
+                                width = UiUtils.borderWidthDefault / 2,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = MaterialTheme.shapes.medium
+                            )
+                            .padding(10.dp)
+                    )
+                }
+                Spacer(Modifier.padding(UiUtils.arrangementDefault / 4))
                 UserChatIcon(icon = chatMessage.icon, name = chatMessage.name)
             }
         } else {
             Row(
                 modifier = Modifier.weight(3f),
                 horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.Top
             ) {
                 UserChatIcon(icon = chatMessage.icon, name = chatMessage.name)
-                Spacer(modifier = Modifier.padding(UiUtils.arrangementDefault / 4))
-                Text(
-                    text = chatMessage.text,
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.medium)
-                        .border(
-                            width = UiUtils.borderWidthDefault / 2,
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = MaterialTheme.shapes.medium
-                        )
-                        .padding(10.dp)
-                        .weight(1f)
-                )
+                Spacer(Modifier.padding(UiUtils.arrangementDefault / 4))
+                Box(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = chatMessage.text,
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .clip(MaterialTheme.shapes.medium)
+                            .border(
+                                width = UiUtils.borderWidthDefault / 2,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = MaterialTheme.shapes.medium
+                            )
+                            .padding(10.dp)
+                    )
+                }
             }
             Spacer(modifier = Modifier.weight(1f))
         }

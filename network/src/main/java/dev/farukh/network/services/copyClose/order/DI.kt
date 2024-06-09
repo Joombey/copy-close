@@ -10,6 +10,8 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
@@ -43,6 +45,10 @@ internal val orderServiceDI by DI.Module {
                 level = LogLevel.ALL
             }
             defaultRequest { url("${BuildConfig.CopyCloseURL}/order/") }
+            WebSockets {
+                maxFrameSize = 8192
+                contentConverter = KotlinxWebsocketSerializationConverter(instance(Tags.COPY_CLOSE_ORDER))
+            }
         }
     }
 
